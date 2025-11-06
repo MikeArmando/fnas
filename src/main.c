@@ -7,7 +7,7 @@ int main()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1200, 600, "Five Nigths At School");
+	InitWindow(1300, 700, "Five Nigths At School");
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
@@ -25,7 +25,8 @@ int main()
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		DrawText("Five Nigths At School", 200, 200, 20, WHITE);
+		DrawText("Five Nigths At School", 200, 200, 40, WHITE);
+		DrawText("Presiona enter para comenzar . . .", 200, 250, 20, WHITE);
 
 		// draw our texture to the screen
 		DrawTexture(wabbit, 400, 400, WHITE);
