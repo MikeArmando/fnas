@@ -1,14 +1,4 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
 #include "raylib.h"
-
 #include "resource_dir.h" // utility header for SearchAndSetResourceDir
 
 int main()
@@ -17,7 +7,7 @@ int main()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1200, 600, "Five nigths at school");
+	InitWindow(1200, 600, "Five Nigths At School");
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
@@ -35,7 +25,7 @@ int main()
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		DrawText("Five nigths at school", 200, 200, 20, WHITE);
+		DrawText("Five Nigths At School", 200, 200, 20, WHITE);
 
 		// draw our texture to the screen
 		DrawTexture(wabbit, 400, 400, WHITE);
