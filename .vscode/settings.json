@@ -15,6 +15,7 @@
 		"button.h": "c",
 		"button.hpp": "c",
 		"stdbool.h": "c",
-		"stddef.h": "c"
+		"stddef.h": "c",
+		"*.m": "c"
 	}
 }

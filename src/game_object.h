@@ -20,5 +20,7 @@ void DrawGameObject(const GameObject *obj);
 void SetGameObjectSize(GameObject *obj, float desiredWidth);
 void SetGameObjectPosition(GameObject *obj, Vector2 pos);
 void SetGameObjectRotation(GameObject *obj, float degrees);
+bool GameObject_IsMouseOver(const GameObject *obj);
+bool GameObject_IsClicked(const GameObject *obj, int mouseButton);
 
 #endif // GAME_OBJECT_H
