@@ -12,12 +12,21 @@ int main()
 
 	SearchAndSetResourceDir("resources");
 
-	// ----------------- Load textures from resources ---------------------
+	InitAudioDevice();
+
+	// ----------------- Load resources ---------------------
 	// Backgrounds
 	Texture2D classroomBackground = LoadTexture("clase.jpg");
 	// Objects
 	Texture2D arrowCenter = LoadTexture("arrow.png");
 	Texture2D arrowLeft = LoadTexture("arrow.png");
+	// Music
+	Music mainMusic = LoadMusicStream("horrorMain.mp3");
+	Music introMusic = LoadMusicStream("intro.mp3");
+	PlayMusicStream(mainMusic);
+	PlayMusicStream(introMusic);
+	SetMusicVolume(mainMusic, 1.0f);
+	SetMusicVolume(introMusic, 1.0f);
 
 	// --------------------- Background Config ---------------------
 	float sx = (float)GetScreenWidth() / (float)classroomBackground.width;
@@ -54,13 +63,17 @@ int main()
 	{
 		Vector2 mousePos = GetMousePosition();
 
-		if (IsKeyPressed(KEY_ENTER)) 
+		UpdateMusicStream(introMusic);
+
+		if (IsKeyPressed(KEY_ENTER))
 		{
 			isEnterKeyPressed = 1;
+			PauseMusicStream(introMusic);
 		}
 
 		if (isEnterKeyPressed == 1)
 		{
+			UpdateMusicStream(mainMusic);
 			BeginDrawing();
 			// background
 			DrawTextureEx(classroomBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
@@ -94,6 +107,11 @@ int main()
 	UnloadTexture(classroomBackground);
 	UnloadTexture(arrowCenter);
 	UnloadTexture(arrowLeft);
+
+	UnloadMusicStream(mainMusic);
+	UnloadMusicStream(introMusic);
+
+	CloseAudioDevice(); // Close audio device (music streaming is automatically stopped)
 
 	CloseWindow();
 	return 0;
