@@ -17,16 +17,15 @@ int main()
 	// ----------------- Load resources ---------------------
 	// Backgrounds
 	Texture2D classroomBackground = LoadTexture("clase.jpg");
+	Texture2D windowBackground = LoadTexture("ventana.jpg");
+
 	// Objects
 	Texture2D arrowCenter = LoadTexture("arrow.png");
 	Texture2D arrowLeft = LoadTexture("arrow.png");
+
 	// Music
 	Music mainMusic = LoadMusicStream("horrorMain.mp3");
 	Music introMusic = LoadMusicStream("intro.mp3");
-	PlayMusicStream(mainMusic);
-	PlayMusicStream(introMusic);
-	SetMusicVolume(mainMusic, 1.0f);
-	SetMusicVolume(introMusic, 1.0f);
 
 	// --------------------- Background Config ---------------------
 	float sx = (float)GetScreenWidth() / (float)classroomBackground.width;
@@ -49,14 +48,24 @@ int main()
 	Vector2 arrowCenterPos = {424, 330};
 	// Arrow left
 	float scaleArrowLeft = desiredWidth / (float)arrowLeft.width;
-	Vector2 arrowLeftPos = {200, 360};
+	Vector2 arrowLeftPos = {180, 340};
 	// Arrow rigth
 
 	// --------------------- Draw a rectangle on objects position ---------------------
-	Rectangle dest = {arrowCenterPos.x, arrowCenterPos.y, arrowCenter.width * scaleArrowCenter, arrowCenter.height * scaleArrowCenter};
+	Rectangle centerArrowSide = {arrowCenterPos.x, arrowCenterPos.y, arrowCenter.width * scaleArrowCenter, arrowCenter.height * scaleArrowCenter};
+	Rectangle leftArrowSide = {arrowLeftPos.x, arrowLeftPos.y, arrowLeft.width * scaleArrowLeft, arrowLeft.height * scaleArrowLeft};
+
+	// --------------------- Music config ---------------------
+	PlayMusicStream(introMusic);
+	PlayMusicStream(mainMusic);
+
+	SetMusicVolume(introMusic, 1.0f);
+	SetMusicVolume(mainMusic, 1.0f);
 
 	// --------------------- Variables ---------------------
 	int isEnterKeyPressed = 0;
+	int isLeftSide = 0;
+	int goBack = 0;
 
 	// --------------------- Game loop ---------------------
 	while (!WindowShouldClose())
@@ -79,13 +88,18 @@ int main()
 			DrawTextureEx(classroomBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
 			// Arrows
 			DrawTextureEx(arrowCenter, arrowCenterPos, 0.0f, scaleArrowCenter, WHITE);
+			DrawTextureEx(arrowLeft, arrowLeftPos, 0.0f, scaleArrowLeft, WHITE);
 
-			if (CheckCollisionPointRec(mousePos, dest))
+			if (CheckCollisionPointRec(mousePos, leftArrowSide))
 			{
 				if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 				{
-					DrawTextureEx(arrowLeft, arrowLeftPos, 0.0f, scaleArrowLeft, WHITE);
+					isLeftSide = 1;
 				}
+			}
+			if (isLeftSide == 1)
+			{
+				DrawTextureEx(windowBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
 			}
 
 			EndDrawing();
@@ -103,8 +117,9 @@ int main()
 		}
 	}
 
-	// ----------- Clean Up
+	// --------------------- Clean Up ---------------------
 	UnloadTexture(classroomBackground);
+	UnloadTexture(windowBackground);
 	UnloadTexture(arrowCenter);
 	UnloadTexture(arrowLeft);
 
