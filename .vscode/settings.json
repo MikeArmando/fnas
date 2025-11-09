@@ -17,6 +17,7 @@
 		"stdbool.h": "c",
 		"stddef.h": "c",
 		"*.m": "c",
-		"math.h": "c"
+		"math.h": "c",
+		"resources_config.h": "c"
 	}
 }
