@@ -74,6 +74,7 @@ int main()
 	Rectangle snailRec = {SnailPos.x, SnailPos.y, snail.width * scaleSnail, snail.height * scaleSnail};
 
 	// --------------------- Music config ---------------------
+	PlayMusicStream(introMusic); // Starting music (Needs to be here)
 	SetMusicVolume(introMusic, .8f);
 	SetMusicVolume(m1Track, .5f);
 	SetMusicVolume(monoV1, 1.0f);
@@ -106,8 +107,6 @@ int main()
 		float monoV2Len = GetMusicTimeLength(monoV2);
 
 		// ----------------- Logic Section -----------------
-		PlayMusicStream(m1Track);
-
 		if (IsKeyPressed(KEY_ENTER))
 		{
 			StopMusicStream(introMusic);
