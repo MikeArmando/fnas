@@ -18,6 +18,8 @@
 		"stddef.h": "c",
 		"*.m": "c",
 		"math.h": "c",
-		"resources_config.h": "c"
+		"resources_config.h": "c",
+		"resources.h": "c",
+		"string.h": "c"
 	}
 }

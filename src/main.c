@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "resource_dir.h"
-#include <math.h> // fminf, fmaxf
+#include <math.h>
+#include "resources.h"
 
 int main()
 {
@@ -15,38 +16,22 @@ int main()
 	InitAudioDevice();
 
 	// ----------------- Load resources ---------------------
-	// Backgrounds
-	Texture2D classroomBackground = LoadTexture("backgrounds/defualtClassroom.png");
-	Texture2D centerBackground = LoadTexture("backgrounds/ventana.jpg");
-	Texture2D leftBackground = LoadTexture("backgrounds/ventana.jpg");
-	Texture2D rightBackground = LoadTexture("backgrounds/ventana.jpg");
-	Texture2D tutorialWindow = LoadTexture("backgrounds/tutorial.jpg");
-
-	// Objects
-	Texture2D centerArrow = LoadTexture("objects/arrow.png");
-	Texture2D leftArrow = LoadTexture("objects/arrow.png");
-	Texture2D rightArrow = LoadTexture("objects/arrow.png");
-	Texture2D snail = LoadTexture("objects/snail.png");
-
-	// Music
-	Music m1Track = LoadMusicStream("music/m2.mp3");
-	Music introMusic = LoadMusicStream("music/intro.mp3");
-	Music monoV1 = LoadMusicStream("music/monoV1.mp3");
-	Music monoV2 = LoadMusicStream("music/monoV2.mp3");
+	resources_load();
+	const Ts_resources *res = resources_get();
 
 	// --------------------- Background Config ---------------------
-	float sx = (float)GetScreenWidth() / (float)classroomBackground.width;
-	float sy = (float)GetScreenHeight() / (float)classroomBackground.height;
+	float sx = (float)GetScreenWidth() / (float)res->classroomWindow.width;
+	float sy = (float)GetScreenHeight() / (float)res->classroomWindow.height;
 
 	// FIT
 	float scaleFit = fminf(sx, sy);
-	Vector2 backgroundPosFit = {(GetScreenWidth() - classroomBackground.width * scaleFit) / 2.0f, (GetScreenHeight() - classroomBackground.height * scaleFit) / 2.0f};
+	Vector2 backgroundPosFit = {(GetScreenWidth() - res->classroomWindow.width * scaleFit) / 2.0f, (GetScreenHeight() - res->classroomWindow.height * scaleFit) / 2.0f};
 
 	// COVER
 	float scaleCover = fmaxf(sx, sy);
-	Vector2 bgPosCover = {(GetScreenWidth() - classroomBackground.width * scaleCover) / 2.0f, (GetScreenHeight() - classroomBackground.height * scaleCover) / 2.0f};
+	Vector2 bgPosCover = {(GetScreenWidth() - res->classroomWindow.width * scaleCover) / 2.0f, (GetScreenHeight() - res->classroomWindow.height * scaleCover) / 2.0f};
 
-	// Tutorial window
+	// Tutorial Window
 	Vector2 tutorialWindowPos = {300, 200};
 
 	// --------------------- Objects Config ---------------------
@@ -55,30 +40,26 @@ int main()
 	float snailSize = 120.0f;
 
 	// Center Arrow
-	float scaleCenterArrow = arrowSize / (float)centerArrow.width;
+	float scaleCenterArrow = arrowSize / (float)res->centerArrow.width;
 	Vector2 centerArrowPos = {550, 480};
 	// Left Arrow
-	float scaleLeftArrow = arrowSize / (float)leftArrow.width;
+	float scaleLeftArrow = arrowSize / (float)res->leftArrow.width;
 	Vector2 leftArrowPos = {120, 500};
 	// Rigth Arrow
-	float scaleRightArrow = arrowSize / (float)rightArrow.width;
+	float scaleRightArrow = arrowSize / (float)res->rightArrow.width;
 	Vector2 rightArrowPos = {950, 500};
 	// Snail
-	float scaleSnail = snailSize / (float)snail.width;
+	float scaleSnail = snailSize / (float)res->snail.width;
 	Vector2 SnailPos = {50, 630};
 
 	// --------------------- Background on objects position for clicking ---------------------
-	Rectangle centerArrowRec = {centerArrowPos.x, centerArrowPos.y, centerArrow.width * scaleCenterArrow, centerArrow.height * scaleCenterArrow};
-	Rectangle leftArrowRec = {leftArrowPos.x, leftArrowPos.y, leftArrow.width * scaleLeftArrow, leftArrow.height * scaleLeftArrow};
-	Rectangle rightArrowRec = {rightArrowPos.x, rightArrowPos.y, rightArrow.width * scaleRightArrow, rightArrow.height * scaleRightArrow};
-	Rectangle snailRec = {SnailPos.x, SnailPos.y, snail.width * scaleSnail, snail.height * scaleSnail};
+	Rectangle centerArrowRec = {centerArrowPos.x, centerArrowPos.y, res->centerArrow.width * scaleCenterArrow, res->centerArrow.height * scaleCenterArrow};
+	Rectangle leftArrowRec = {leftArrowPos.x, leftArrowPos.y, res->leftArrow.width * scaleLeftArrow, res->leftArrow.height * scaleLeftArrow};
+	Rectangle rightArrowRec = {rightArrowPos.x, rightArrowPos.y, res->rightArrow.width * scaleRightArrow, res->rightArrow.height * scaleRightArrow};
+	Rectangle snailRec = {SnailPos.x, SnailPos.y, res->snail.width * scaleSnail, res->snail.height * scaleSnail};
 
-	// --------------------- Music config ---------------------
-	PlayMusicStream(introMusic); // Starting music (Needs to be here)
-	SetMusicVolume(introMusic, .8f);
-	SetMusicVolume(m1Track, .5f);
-	SetMusicVolume(monoV1, 1.0f);
-	SetMusicVolume(monoV2, 1.0f);
+	// --------------------- Music Config ---------------------
+	PlayMusicStream(res->introMusic); // Starting music (Needs to be here)
 
 	// --------------------- Screen Variables ---------------------
 	int isStartScreen = 1;
@@ -95,72 +76,63 @@ int main()
 	{
 		Vector2 mousePos = GetMousePosition();
 
-		UpdateMusicStream(introMusic);
-		UpdateMusicStream(m1Track);
-		UpdateMusicStream(monoV1);
-		UpdateMusicStream(monoV2);
-
-		float monoV1Played = GetMusicTimePlayed(monoV1);
-		float monoV1Len = GetMusicTimeLength(monoV1);
-
-		float monoV2Played = GetMusicTimePlayed(monoV2);
-		float monoV2Len = GetMusicTimeLength(monoV2);
+		UpdateMusicStream(res->introMusic);
+		UpdateMusicStream(res->m1Track);
+		UpdateMusicStream(res->monoV1);
 
 		// ----------------- Logic Section -----------------
 		if (IsKeyPressed(KEY_ENTER))
 		{
-			StopMusicStream(introMusic);
-			PlayMusicStream(m1Track);
-			PlayMusicStream(monoV1);
+			StopMusicStream(res->introMusic);
+			PlayMusicStream(res->m1Track);
+			PlayMusicStream(res->monoV1);
 
 			isStartScreen = 0;
 			isClassroom = 1;
 		}
 
-		if (isClassroom == 1)
+		if (isClassroom)
 		{
-			if (monoV1Len > 0.001f && monoV1Played + 0.05f >= monoV1Len)
-			{
-				StopMusicStream(monoV1);
-				PlayMusicStream(monoV2);
-			}
-			if (monoV2Len > 0.001f && monoV2Played + 0.05f >= monoV2Len)
-			{
-				StopMusicStream(monoV2);
-			}
+		}
 
-			if (CheckCollisionPointRec(mousePos, centerArrowRec))
+		if (CheckCollisionPointRec(mousePos, centerArrowRec))
+		{
+			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
-				if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-				{
-					isClassroom = 0;
-					isCenterWindow = 1;
-				}
+				isClassroom = 0;
+				isCenterWindow = 1;
 			}
-			if (CheckCollisionPointRec(mousePos, leftArrowRec))
+		}
+		if (CheckCollisionPointRec(mousePos, leftArrowRec))
+		{
+			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
-				if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-				{
-					isClassroom = 0;
-					isLeftWindow = 1;
-				}
+				isClassroom = 0;
+				isLeftWindow = 1;
 			}
-			if (CheckCollisionPointRec(mousePos, rightArrowRec))
+		}
+		if (CheckCollisionPointRec(mousePos, rightArrowRec))
+		{
+			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
-				if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-				{
-					isClassroom = 0;
-					isRightWindow = 1;
-				}
+				isClassroom = 0;
+				isRightWindow = 1;
 			}
-			if (CheckCollisionPointRec(mousePos, snailRec))
-			{
-				isSnailWindow = 1;
-			}
-			else
-			{
-				isSnailWindow = 0;
-			}
+		}
+		if (CheckCollisionPointRec(mousePos, snailRec))
+		{
+			isSnailWindow = 1;
+		}
+		else
+		{
+			isSnailWindow = 0;
+		}
+
+		float monoV1Played = GetMusicTimePlayed(res->monoV1);
+		float monoV1Len = GetMusicTimeLength(res->monoV1);
+		if (monoV1Len > 0.001f && monoV1Played + 0.05f >= monoV1Len)
+		{
+			StopMusicStream(res->monoV1);
 		}
 
 		// ----------------- Drawing Section -----------------
@@ -169,27 +141,27 @@ int main()
 		{
 			ClearBackground(BLACK);
 			DrawText("Five Nigths At School", 150, 200, 60, WHITE);
-			DrawText("Presiona enter para comenzar . . .", 150, 270, 20, WHITE);
+			DrawText("Presiona [ENTER] para comenzar . . .", 150, 270, 20, WHITE);
 		}
 		if (isClassroom)
 		{
-			DrawTextureEx(classroomBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
-			DrawTextureEx(centerArrow, centerArrowPos, 0.0f, scaleCenterArrow, WHITE);
-			DrawTextureEx(leftArrow, leftArrowPos, 0.0f, scaleLeftArrow, WHITE);
-			DrawTextureEx(rightArrow, rightArrowPos, 0.0f, scaleRightArrow, WHITE);
-			DrawTextureEx(snail, SnailPos, 0.0f, scaleSnail, WHITE);
+			DrawTextureEx(res->classroomWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->centerArrow, centerArrowPos, 0.0f, scaleCenterArrow, WHITE);
+			DrawTextureEx(res->leftArrow, leftArrowPos, 0.0f, scaleLeftArrow, WHITE);
+			DrawTextureEx(res->rightArrow, rightArrowPos, 0.0f, scaleRightArrow, WHITE);
+			DrawTextureEx(res->snail, SnailPos, 0.0f, scaleSnail, WHITE);
 		}
-		if (isCenterWindow == 1)
+		if (isCenterWindow)
 		{
-			DrawTextureEx(centerBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->centerTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 		}
-		if (isLeftWindow == 1)
+		if (isLeftWindow)
 		{
-			DrawTextureEx(leftBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->leftTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 		}
-		if (isRightWindow == 1)
+		if (isRightWindow)
 		{
-			DrawTextureEx(rightBackground, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->rightTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 		}
 		if (isLostScreen)
 		{
@@ -205,27 +177,14 @@ int main()
 		}
 		if (isSnailWindow)
 		{
-			DrawTextureEx(tutorialWindow, tutorialWindowPos, 0.0f, 0.5f, WHITE);
+			DrawTextureEx(res->tutorialWindow, tutorialWindowPos, 0.0f, 0.5f, WHITE);
 		}
 
 		EndDrawing();
 	}
 
 	// --------------------- Clean Up ---------------------
-	UnloadTexture(classroomBackground);
-	UnloadTexture(centerBackground);
-	UnloadTexture(leftBackground);
-	UnloadTexture(rightBackground);
-	UnloadTexture(tutorialWindow);
-	UnloadTexture(centerArrow);
-	UnloadTexture(leftArrow);
-	UnloadTexture(rightArrow);
-	UnloadTexture(snail);
-
-	UnloadMusicStream(m1Track);
-	UnloadMusicStream(introMusic);
-	UnloadMusicStream(monoV1);
-	UnloadMusicStream(monoV2);
+	resources_unload();
 
 	CloseAudioDevice();
 
