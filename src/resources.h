@@ -24,6 +24,7 @@ typedef struct _Resources
     Texture2D centerArrow;
     Texture2D leftArrow;
     Texture2D rightArrow;
+    Texture2D returnArrow;
     Texture2D snail;
 
     // Music
@@ -31,6 +32,12 @@ typedef struct _Resources
     Music m1Track;
     Music monoV1;
     Music monoV2;
+
+    // Sound Effects
+    Sound eatingCookie;
+    Sound doorKnocking;
+    Sound doorClosed;
+
 } Ts_resources;
 
 void resources_load();

@@ -2,6 +2,9 @@
 #include "resource_dir.h"
 #include <math.h>
 #include "resources.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 int main()
 {
@@ -48,6 +51,9 @@ int main()
 	// Rigth Arrow
 	float scaleRightArrow = arrowSize / (float)res->rightArrow.width;
 	Vector2 rightArrowPos = {950, 500};
+	// Return Arrow
+	Vector2 returnArrowPos = {550, 650};
+
 	// Snail
 	float scaleSnail = snailSize / (float)res->snail.width;
 	Vector2 SnailPos = {50, 630};
@@ -56,9 +62,11 @@ int main()
 	Rectangle centerArrowRec = {centerArrowPos.x, centerArrowPos.y, res->centerArrow.width * scaleCenterArrow, res->centerArrow.height * scaleCenterArrow};
 	Rectangle leftArrowRec = {leftArrowPos.x, leftArrowPos.y, res->leftArrow.width * scaleLeftArrow, res->leftArrow.height * scaleLeftArrow};
 	Rectangle rightArrowRec = {rightArrowPos.x, rightArrowPos.y, res->rightArrow.width * scaleRightArrow, res->rightArrow.height * scaleRightArrow};
+	Rectangle returnArrowRec = {returnArrowPos.x, returnArrowPos.y, res->centerArrow.width * scaleCenterArrow, res->centerArrow.height * scaleCenterArrow};
+
 	Rectangle snailRec = {SnailPos.x, SnailPos.y, res->snail.width * scaleSnail, res->snail.height * scaleSnail};
 
-	// --------------------- Music Config ---------------------
+	// --------------------- Inicial Music ---------------------
 	PlayMusicStream(res->introMusic); // Starting music (Needs to be here)
 
 	// --------------------- Screen Variables ---------------------
@@ -66,15 +74,40 @@ int main()
 	int isLostScreen = 0;
 	int isWonScreen = 0;
 	int isClassroom = 0;
-	int isCenterWindow = 0;
-	int isLeftWindow = 0;
-	int isRightWindow = 0;
+	int isCenterTaskWindow = 0;
+	int isLeftTaskWindow = 0;
+	int isRightTaskWindow = 0;
 	int isSnailWindow = 0;
+	int startTask = 0;
+
+	// Entity list
+	Texture2D entityList[3];
+	entityList[0] = LoadTexture("objects/girl.jpg");
+	entityList[1] = LoadTexture("objects/monster.jpg");
+	entityList[2] = LoadTexture("objects/snail.png");
+
+	const float interval = 5.0f; // Seconds
+	float timer = 0.0f;
+	int newIndex;
 
 	// --------------------- Game loop ---------------------
 	while (!WindowShouldClose())
 	{
 		Vector2 mousePos = GetMousePosition();
+		if (!isStartScreen)
+		{
+			// Timer
+			float deltatime = GetFrameTime();
+			timer += deltatime;
+			if (timer >= interval)
+			{
+				timer -= interval;
+				newIndex = GetRandomValue(0, 2);
+				PlaySound(res->doorKnocking);
+
+				startTask = 1;
+			}
+		}
 
 		UpdateMusicStream(res->introMusic);
 		UpdateMusicStream(res->m1Track);
@@ -100,7 +133,7 @@ int main()
 			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
 				isClassroom = 0;
-				isCenterWindow = 1;
+				isCenterTaskWindow = 1;
 			}
 		}
 		if (CheckCollisionPointRec(mousePos, leftArrowRec))
@@ -108,7 +141,7 @@ int main()
 			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
 				isClassroom = 0;
-				isLeftWindow = 1;
+				isLeftTaskWindow = 1;
 			}
 		}
 		if (CheckCollisionPointRec(mousePos, rightArrowRec))
@@ -116,7 +149,17 @@ int main()
 			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
 			{
 				isClassroom = 0;
-				isRightWindow = 1;
+				isRightTaskWindow = 1;
+			}
+		}
+		if (CheckCollisionPointRec(mousePos, returnArrowRec))
+		{
+			if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+			{
+				isCenterTaskWindow = 0;
+				isLeftTaskWindow = 0;
+				isRightTaskWindow = 0;
+				isClassroom = 1;
 			}
 		}
 		if (CheckCollisionPointRec(mousePos, snailRec))
@@ -137,6 +180,7 @@ int main()
 
 		// ----------------- Drawing Section -----------------
 		BeginDrawing();
+
 		if (isStartScreen)
 		{
 			ClearBackground(BLACK);
@@ -151,17 +195,32 @@ int main()
 			DrawTextureEx(res->rightArrow, rightArrowPos, 0.0f, scaleRightArrow, WHITE);
 			DrawTextureEx(res->snail, SnailPos, 0.0f, scaleSnail, WHITE);
 		}
-		if (isCenterWindow)
+		if (startTask)
+		{
+			if (newIndex == 0)
+			{
+				/* code */
+			}
+
+			DrawTextureEx(entityList[newIndex], backgroundPosFit, 0.0f, scaleFit, WHITE);
+
+			startTask = 0; // ONCE ITS COMPLETED
+		}
+
+		if (isCenterTaskWindow)
 		{
 			DrawTextureEx(res->centerTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
 		}
-		if (isLeftWindow)
+		if (isLeftTaskWindow)
 		{
 			DrawTextureEx(res->leftTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
 		}
-		if (isRightWindow)
+		if (isRightTaskWindow)
 		{
 			DrawTextureEx(res->rightTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
+			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
 		}
 		if (isLostScreen)
 		{
