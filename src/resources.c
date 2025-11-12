@@ -24,15 +24,15 @@ void resources_load()
     res.centerArrow = LoadTexture("objects/arrow.png");
     res.leftArrow = LoadTexture("objects/arrow.png");
     res.rightArrow = LoadTexture("objects/arrow.png");
-    res.returnArrow = LoadTexture("objects/return_arrow.png");
-    res.snail = LoadTexture("objects/snail.png");
+    res.returnArrow = LoadTexture("objects/arrow.png");
+    res.helper = LoadTexture("objects/snail.png");
 
     // Music
     res.introMusic = LoadMusicStream("music/intro.mp3");
     res.m1Track = LoadMusicStream("music/m2.mp3");
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
 
-    // MusSound Effectsic
+    // Sound Effect
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");
     res.doorKnocking = LoadSound("soundEffects/knocking_effect.mp3");
     res.doorClosed = LoadSound("soundEffects/closed_door_effect.mp3");
@@ -48,6 +48,7 @@ void resources_load()
 
 void resources_unload()
 {
+    // Music
     StopMusicStream(res.introMusic);
     StopMusicStream(res.m1Track);
     StopMusicStream(res.monoV1);
@@ -56,6 +57,12 @@ void resources_unload()
     UnloadMusicStream(res.m1Track);
     UnloadMusicStream(res.monoV1);
 
+    // Sound Effect
+    UnloadSound(res.eatingCookie);
+    UnloadSound(res.doorKnocking);
+    UnloadSound(res.doorClosed);
+
+    // Texture
     UnloadTexture(res.classroomWindow);
     UnloadTexture(res.centerTaskWindow);
     UnloadTexture(res.leftTaskWindow);
@@ -64,7 +71,7 @@ void resources_unload()
     UnloadTexture(res.centerArrow);
     UnloadTexture(res.leftArrow);
     UnloadTexture(res.rightArrow);
-    UnloadTexture(res.snail);
+    UnloadTexture(res.helper);
 
     // Zero out the struct for safety
     memset(&res, 0, sizeof(Ts_resources));

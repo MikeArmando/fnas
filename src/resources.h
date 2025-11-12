@@ -24,7 +24,7 @@ typedef struct _Resources
     Texture2D leftArrow;
     Texture2D rightArrow;
     Texture2D returnArrow;
-    Texture2D snail;
+    Texture2D helper;
 
     // Music
     Music introMusic;

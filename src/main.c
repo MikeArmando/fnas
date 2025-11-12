@@ -1,9 +1,9 @@
 #include "raylib.h"
 #include "resource_dir.h"
-#include <math.h>
 #include "resources.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <time.h>
 
 int main()
@@ -12,13 +12,13 @@ int main()
 
 	SetTargetFPS(60);
 
-	InitWindow(1175, 730, "Five Nigths At School");
+	InitWindow(1250, 750, "Five Nigths At School");
 
 	SearchAndSetResourceDir("resources");
 
 	InitAudioDevice();
 
-	// ----------------- Load resources ---------------------
+	// ----------------- Load Resources ---------------------
 	resources_load();
 	const Ts_resources *res = resources_get();
 
@@ -39,35 +39,36 @@ int main()
 
 	// --------------------- Objects Config ---------------------
 	// Scale to pixel size
-	float arrowSize = 60.0f;
-	float snailSize = 120.0f;
+	float arrowSize = 80.0f;
+	float helperSize = 120.0f;
+	float entitySize = 60.0f;
 
 	// Center Arrow
 	float scaleCenterArrow = arrowSize / (float)res->centerArrow.width;
-	Vector2 centerArrowPos = {550, 480};
+	Vector2 centerArrowPos = {580, 480};
 	// Left Arrow
 	float scaleLeftArrow = arrowSize / (float)res->leftArrow.width;
-	Vector2 leftArrowPos = {120, 500};
+	Vector2 leftArrowPos = {120, 530};
 	// Rigth Arrow
 	float scaleRightArrow = arrowSize / (float)res->rightArrow.width;
-	Vector2 rightArrowPos = {950, 500};
+	Vector2 rightArrowPos = {1100, 500};
 	// Return Arrow
 	Vector2 returnArrowPos = {550, 650};
-
 	// Snail
-	float scaleSnail = snailSize / (float)res->snail.width;
-	Vector2 SnailPos = {50, 630};
+	float scaleHelper = helperSize / (float)res->helper.width;
+	Vector2 helperPos = {50, 630};
+	// Entity
+	float scaleEntity = entitySize / (float)res->helper.width;
+	Vector2 LeftEntityPos = {50, 430};
+	Vector2 centerEntityPos = {550, 400};
+	Vector2 rightEntityPos = {1040, 430};
 
 	// --------------------- Background on objects position for clicking ---------------------
 	Rectangle centerArrowRec = {centerArrowPos.x, centerArrowPos.y, res->centerArrow.width * scaleCenterArrow, res->centerArrow.height * scaleCenterArrow};
 	Rectangle leftArrowRec = {leftArrowPos.x, leftArrowPos.y, res->leftArrow.width * scaleLeftArrow, res->leftArrow.height * scaleLeftArrow};
 	Rectangle rightArrowRec = {rightArrowPos.x, rightArrowPos.y, res->rightArrow.width * scaleRightArrow, res->rightArrow.height * scaleRightArrow};
 	Rectangle returnArrowRec = {returnArrowPos.x, returnArrowPos.y, res->centerArrow.width * scaleCenterArrow, res->centerArrow.height * scaleCenterArrow};
-
-	Rectangle snailRec = {SnailPos.x, SnailPos.y, res->snail.width * scaleSnail, res->snail.height * scaleSnail};
-
-	// --------------------- Inicial Music ---------------------
-	PlayMusicStream(res->introMusic); // Starting music (Needs to be here)
+	Rectangle snailRec = {helperPos.x, helperPos.y, res->helper.width * scaleHelper, res->helper.height * scaleHelper};
 
 	// --------------------- Screen Variables ---------------------
 	int isStartScreen = 1;
@@ -82,13 +83,16 @@ int main()
 
 	// Entity list
 	Texture2D entityList[3];
-	entityList[0] = LoadTexture("objects/girl.jpg");
-	entityList[1] = LoadTexture("objects/monster.jpg");
-	entityList[2] = LoadTexture("objects/snail.png");
+	entityList[0] = LoadTexture("objects/monster.jpg");
+	entityList[1] = LoadTexture("objects/snail.png");
+	entityList[2] = LoadTexture("objects/girl.jpg");
 
 	const float interval = 5.0f; // Seconds
 	float timer = 0.0f;
 	int newIndex;
+
+	// --------------------- Inicial Music ---------------------
+	PlayMusicStream(res->introMusic); // Starting music (Needs to be here)
 
 	// --------------------- Game loop ---------------------
 	while (!WindowShouldClose())
@@ -103,8 +107,6 @@ int main()
 			{
 				timer -= interval;
 				newIndex = GetRandomValue(0, 2);
-				PlaySound(res->doorKnocking);
-
 				startTask = 1;
 			}
 		}
@@ -193,32 +195,43 @@ int main()
 			DrawTextureEx(res->centerArrow, centerArrowPos, 0.0f, scaleCenterArrow, WHITE);
 			DrawTextureEx(res->leftArrow, leftArrowPos, 0.0f, scaleLeftArrow, WHITE);
 			DrawTextureEx(res->rightArrow, rightArrowPos, 0.0f, scaleRightArrow, WHITE);
-			DrawTextureEx(res->snail, SnailPos, 0.0f, scaleSnail, WHITE);
+			DrawTextureEx(res->helper, helperPos, 0.0f, scaleHelper, WHITE);
 		}
 		if (startTask)
 		{
 			if (newIndex == 0)
 			{
-				/* code */
+				DrawTextureEx(entityList[newIndex], LeftEntityPos, 0.0f, scaleEntity, WHITE);
 			}
-
-			DrawTextureEx(entityList[newIndex], backgroundPosFit, 0.0f, scaleFit, WHITE);
+			if (newIndex == 1)
+			{
+				DrawTextureEx(entityList[newIndex], centerEntityPos, 0.0f, scaleEntity, WHITE);
+			}
+			if (newIndex == 2)
+			{
+				PlaySound(res->doorKnocking);
+				DrawTextureEx(entityList[newIndex], rightEntityPos, 0.0f, scaleEntity, WHITE);
+			}
 
 			startTask = 0; // ONCE ITS COMPLETED
 		}
 
 		if (isCenterTaskWindow)
 		{
+			DrawTextureEx(res->helper, helperPos, 0.0f, scaleHelper, WHITE);
 			DrawTextureEx(res->centerTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
+			DrawText("5 + 5 = ?", 500, 340, 50, WHITE);
 		}
 		if (isLeftTaskWindow)
 		{
+			DrawTextureEx(res->helper, helperPos, 0.0f, scaleHelper, WHITE);
 			DrawTextureEx(res->leftTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
 		}
 		if (isRightTaskWindow)
 		{
+			DrawTextureEx(res->helper, helperPos, 0.0f, scaleHelper, WHITE);
 			DrawTextureEx(res->rightTaskWindow, backgroundPosFit, 0.0f, scaleFit, WHITE);
 			DrawTextureEx(res->returnArrow, returnArrowPos, 0.0f, scaleCenterArrow, WHITE);
 		}
