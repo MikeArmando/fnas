@@ -21,11 +21,11 @@ void resources_load()
     res.classroomRightIndicator = LoadTexture("backgrounds/girl.jpg");
 
     // Objects
-    res.centerArrow = LoadTexture("objects/arrow.png");
-    res.leftArrow = LoadTexture("objects/arrow.png");
-    res.rightArrow = LoadTexture("objects/arrow.png");
-    res.returnArrow = LoadTexture("objects/arrow.png");
-    res.helper = LoadTexture("objects/snail.png");
+    res.centerArrow = LoadTexture("objects/arrow_up.png");
+    res.leftArrow = LoadTexture("objects/arrow_left.png");
+    res.rightArrow = LoadTexture("objects/arrow_right.png");
+    res.returnArrow = LoadTexture("objects/arrow_down.png");
+    res.helper = LoadTexture("objects/helper.png");
 
     // Music
     res.introMusic = LoadMusicStream("music/intro.mp3");
@@ -33,8 +33,13 @@ void resources_load()
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
 
     // Sound Effect
+    // Left task
+    res.knockingOnWindow = LoadSound("soundEffects/knocking_window.mp3");
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");
-    res.doorKnocking = LoadSound("soundEffects/knocking_effect.mp3");
+    // Center task
+    res.writingOnBoard = LoadSound("soundEffects/writing_board.mp3");
+    // Right task
+    res.girlLaugh = LoadSound("soundEffects/girl_laugh.mp3");
     res.doorClosed = LoadSound("soundEffects/closed_door_effect.mp3");
 
     // Volume Config
@@ -42,8 +47,11 @@ void resources_load()
     SetMusicVolume(res.m1Track, 0.5f);
     SetMusicVolume(res.monoV1, 1.0f);
 
+    SetSoundVolume(res.knockingOnWindow, 0.8f);
     SetSoundVolume(res.eatingCookie, 0.8f);
-    SetSoundVolume(res.doorKnocking, 0.8f);
+    SetSoundVolume(res.girlLaugh, 0.8f);
+    SetSoundVolume(res.doorClosed, 0.8f);
+    SetSoundVolume(res.writingOnBoard, 0.8f);
 }
 
 void resources_unload()
@@ -58,9 +66,11 @@ void resources_unload()
     UnloadMusicStream(res.monoV1);
 
     // Sound Effect
+    UnloadSound(res.knockingOnWindow);
     UnloadSound(res.eatingCookie);
-    UnloadSound(res.doorKnocking);
+    UnloadSound(res.girlLaugh);
     UnloadSound(res.doorClosed);
+    UnloadSound(res.writingOnBoard);
 
     // Texture
     UnloadTexture(res.classroomWindow);

@@ -20,6 +20,7 @@
 		"math.h": "c",
 		"resources_config.h": "c",
 		"resources.h": "c",
-		"string.h": "c"
+		"string.h": "c",
+		"time.h": "c"
 	}
 }

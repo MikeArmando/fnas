@@ -33,8 +33,13 @@ typedef struct _Resources
     Music monoV2;
 
     // Sound Effects
+    // Left task
+    Sound knockingOnWindow;
     Sound eatingCookie;
-    Sound doorKnocking;
+    // Center task
+    Sound writingOnBoard;
+    // Rigth task
+    Sound girlLaugh;
     Sound doorClosed;
 
 } Ts_resources;
