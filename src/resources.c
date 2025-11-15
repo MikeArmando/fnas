@@ -16,9 +16,13 @@ void resources_load()
     res.tutorialWindow = LoadTexture("backgrounds/tutorial.jpg");
 
     // Background task indicators
-    res.classroomCenterIndicator = LoadTexture("backgrounds/monster.jpg");
-    res.classroomLeftIndicator = LoadTexture("backgrounds/chalkboard.png");
-    res.classroomRightIndicator = LoadTexture("backgrounds/girl.jpg");
+    res.centerIndicator = LoadTexture("objects/center_task_indicator.png");
+    res.leftIndicator = LoadTexture("objects/left_task_indicator.png");
+
+    // Background task true
+    res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
+    res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
+    res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
 
     // Objects
     res.centerArrow = LoadTexture("objects/arrow_up.png");
@@ -27,17 +31,30 @@ void resources_load()
     res.returnArrow = LoadTexture("objects/arrow_down.png");
     res.helper = LoadTexture("objects/helper.png");
 
+    // Task books
+    res.taskList[0] = LoadTexture("objects/task_v1.png");
+    res.taskList[1] = LoadTexture("objects/task_v1.png");
+    res.taskList[3] = LoadTexture("objects/task_v1.png");
+    res.taskList[4] = LoadTexture("objects/task_v1.png");
+    res.taskList[5] = LoadTexture("objects/task_v1.png");
+
+    res.icon = LoadImage("objects/icon.jpg");
+
     // Music
     res.introMusic = LoadMusicStream("music/intro.mp3");
     res.m1Track = LoadMusicStream("music/m2.mp3");
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
 
     // Sound Effect
+    res.arrowClick = LoadSound("soundEffects/click.mp3");
+
     // Left task
     res.knockingOnWindow = LoadSound("soundEffects/knocking_window.mp3");
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");
+
     // Center task
     res.writingOnBoard = LoadSound("soundEffects/writing_board.mp3");
+
     // Right task
     res.girlLaugh = LoadSound("soundEffects/girl_laugh.mp3");
     res.doorClosed = LoadSound("soundEffects/closed_door_effect.mp3");
@@ -78,10 +95,13 @@ void resources_unload()
     UnloadTexture(res.leftTaskWindow);
     UnloadTexture(res.rightTaskWindow);
     UnloadTexture(res.tutorialWindow);
+    UnloadTexture(res.centerIndicator);
+    UnloadTexture(res.leftIndicator);
     UnloadTexture(res.centerArrow);
     UnloadTexture(res.leftArrow);
     UnloadTexture(res.rightArrow);
     UnloadTexture(res.helper);
+    UnloadImage(res.icon);
 
     // Zero out the struct for safety
     memset(&res, 0, sizeof(Ts_resources));

@@ -6,18 +6,19 @@ typedef struct _Resources
 {
     // Backgrounds
     Texture2D classroomWindow;
-    Texture2D classroomCenterTaskWindow;
-    Texture2D classroomLeftTaskWindow;
-    Texture2D classroomRightTaskWindow;
-    Texture2D centerTaskWindow;
     Texture2D leftTaskWindow;
+    Texture2D centerTaskWindow;
     Texture2D rightTaskWindow;
     Texture2D tutorialWindow;
 
     // Background task indicators
-    Texture2D classroomCenterIndicator;
-    Texture2D classroomLeftIndicator;
-    Texture2D classroomRightIndicator;
+    Texture2D centerIndicator;
+    Texture2D leftIndicator;
+
+    // Background task true
+    Texture2D leftTaskTrue;
+    Texture2D centerTaskTrue;
+    Texture2D rightTaskTrue;
 
     // Objects
     Texture2D centerArrow;
@@ -26,6 +27,9 @@ typedef struct _Resources
     Texture2D returnArrow;
     Texture2D helper;
 
+    // tasks books
+    Texture2D taskList[20];
+
     // Music
     Music introMusic;
     Music m1Track;
@@ -33,6 +37,8 @@ typedef struct _Resources
     Music monoV2;
 
     // Sound Effects
+    Sound arrowClick;
+
     // Left task
     Sound knockingOnWindow;
     Sound eatingCookie;
@@ -42,6 +48,7 @@ typedef struct _Resources
     Sound girlLaugh;
     Sound doorClosed;
 
+    Image icon;
 } Ts_resources;
 
 void resources_load();

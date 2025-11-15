@@ -21,6 +21,7 @@
 		"resources_config.h": "c",
 		"resources.h": "c",
 		"string.h": "c",
-		"time.h": "c"
+		"time.h": "c",
+		"config.h": "c"
 	}
 }
