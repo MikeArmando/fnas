@@ -2,6 +2,17 @@
 #include "raylib.h"
 #include "resources.h"
 
+typedef struct _MathTaskData
+{
+    int num1;
+    int num2;
+    char op;
+    int correctAnswer;
+    int choicesList[4];
+    int correctIndex;
+    bool isActive;
+} Ts_MathTaskData;
+
 typedef struct _GameState
 {
     // Background Config
@@ -25,6 +36,9 @@ typedef struct _GameState
     Vector2 returnArrowPos;
     Rectangle returnArrowRec;
 
+    Vector2 RightreturnRightArrowPos;
+    Rectangle RightreturnArrowRec;
+
     Rectangle flashlightRec;
 
     // Helper positions and scale
@@ -43,28 +57,17 @@ typedef struct _GameState
     int isCenterTaskTrue;
     int isRightTaskTrue;
 
-    // Tasks book index
-    int taskBookIndex;
-
     // Tasks options position and scale
     float optionScale;
     Vector2 optionPos;
     Rectangle optionRec;
 
     // Math Problem
-    int math_num1;
-    int math_num2;
-    char math_operator;
-    int math_correctAnswer;
+    Ts_MathTaskData leftMathTask;
+    Ts_MathTaskData centerMathTask;
 
-    int mathChoicesList[4];
-    int mathCorrectIndex;
-
-    // Rectangle for colum math task screen
-    Rectangle columnChoiceRecs[4];
-
-    // Rectangle for 2x2 math task screen
-    Rectangle grid2x2ChoiceRecs[4];
+    Rectangle leftMathAnswersRec[4];
+    Rectangle centerMathAnswersRec[4];
 
     // Won or Lost
     int correctPoints;
@@ -107,6 +110,9 @@ void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state);
 void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state);
 void DrawRightTaskWindow(const Ts_resources *res, Ts_GameState *state);
 
+void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state);
+void DrawRightTaskWindowLigth(const Ts_resources *res, Ts_GameState *state);
+
 void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state);
 void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state);
 
@@ -121,7 +127,8 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state);
 
 void playerIdleTimer(const Ts_resources *res, Ts_GameState *state);
 
-void mathTaskGenerator(const Ts_resources *res, Ts_GameState *state);
+void leftMathTaskGenerator(Ts_MathTaskData *task);
+void centerMathTaskGenerator(Ts_MathTaskData *task);
 
 void ChangeGameState(GameLogicFunction newLogic, GameDrawFunction newDraw);
 GameLogicFunction GetCurrentLogic();

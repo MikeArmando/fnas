@@ -18,6 +18,7 @@ int main()
 
 	// ----------------- Inicialize Music -----------------
 	PlayMusicStream(res->introMusic);
+	PlayMusicStream(res->backgroundNoise);
 
 	// ----------------- Inicialize State -----------------
 	ChangeGameState(LogicStartScreen, DrawStartScreen);
@@ -26,7 +27,6 @@ int main()
 	while (!WindowShouldClose())
 	{
 		UpdateMusicStream(res->monoV1);
-		UpdateMusicStream(res->backgroundNoise);
 
 		// ----------------- Logic Section -----------------
 		GameLogicFunction currentLogic = GetCurrentLogic();

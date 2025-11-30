@@ -13,7 +13,7 @@ void resourcesLoad()
     res.centerTaskWindow = LoadTexture("backgrounds/center_task.png");
     res.leftTaskWindow = LoadTexture("backgrounds/left_task_window.png");
     res.rightTaskWindow = LoadTexture("backgrounds/right_task_window.png");
-    res.rightTaskWindowLights = LoadTexture("backgrounds/right_task_window_lights.png");
+    res.rightTaskWindowLights = LoadTexture("backgrounds/right_task_window_light_on.png");
     res.tutorialWindow = LoadTexture("backgrounds/tutorial.jpg");
 
     // Background task indicators
@@ -31,9 +31,6 @@ void resourcesLoad()
     res.rightArrow = LoadTexture("objects/arrow_right.png");
     res.returnArrow = LoadTexture("objects/arrow_down.png");
     res.helper = LoadTexture("objects/helper.png");
-
-    // Task books
-    res.mathBook = LoadTexture("objects/task_v1.png");
 
     // Music
     res.introMusic = LoadMusicStream("music/intro.mp3");
@@ -62,7 +59,7 @@ void resourcesLoad()
     SetMusicVolume(res.introMusic, 0.8f);
     SetMusicVolume(res.m1Track, 0.3f);
     SetMusicVolume(res.monoV1, 0.8f);
-    SetMusicVolume(res.backgroundNoise, 0.17f);
+    SetMusicVolume(res.backgroundNoise, 0.8f);
 
     SetSoundVolume(res.knockingOnWindow, 0.8f);
     SetSoundVolume(res.suspenseSound, 0.3f);
@@ -116,7 +113,6 @@ void resourcesUnload()
     UnloadTexture(res.returnArrow);
 
     UnloadTexture(res.helper);
-    UnloadTexture(res.mathBook);
 
     // Zero out the struct for safety
     memset(&res, 0, sizeof(Ts_resources));

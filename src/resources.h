@@ -28,9 +28,6 @@ typedef struct _Resources
     Texture2D returnArrow;
     Texture2D helper;
 
-    // Math book
-    Texture2D mathBook;
-
     // Music
     Music introMusic;
     Music m1Track;

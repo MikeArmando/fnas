@@ -35,49 +35,57 @@ Ts_GameState GameState_config(const Ts_resources *res)
     // Return Arrow
     state.scaleReturnArrow = returnArrowSize / (float)res->centerArrow.width;
     state.returnArrowPos = (Vector2){588, 640};
+    // Return right Arrow
+    state.RightreturnRightArrowPos = (Vector2){200, 640};
 
     // Snail
     state.scaleHelper = helperSize / (float)res->helper.width;
     state.helperPos = (Vector2){50, 660};
 
     // Flashlight
-    state.flashlightRec = (Rectangle){300, 300, 50, 50};
+    state.flashlightRec = (Rectangle){532, 640, 160, 160};
 
     // Colision Objects position
     state.centerArrowRec = (Rectangle){state.centerArrowPos.x, state.centerArrowPos.y, res->centerArrow.width * state.scaleCenterArrow, res->centerArrow.height * state.scaleCenterArrow};
     state.leftArrowRec = (Rectangle){state.leftArrowPos.x, state.leftArrowPos.y, res->leftArrow.width * state.scaleLeftArrow, res->leftArrow.height * state.scaleLeftArrow};
     state.rightArrowRec = (Rectangle){state.rightArrowPos.x, state.rightArrowPos.y, res->rightArrow.width * state.scaleRightArrow, res->rightArrow.height * state.scaleRightArrow};
     state.returnArrowRec = (Rectangle){state.returnArrowPos.x, state.returnArrowPos.y, res->centerArrow.width * state.scaleCenterArrow, res->centerArrow.height * state.scaleCenterArrow};
+    state.RightreturnArrowRec = (Rectangle){state.RightreturnRightArrowPos.x, state.RightreturnRightArrowPos.y, res->centerArrow.width * state.scaleCenterArrow, res->centerArrow.height * state.scaleCenterArrow};
     state.helperRec = (Rectangle){state.helperPos.x, state.helperPos.y, res->helper.width * state.scaleHelper, res->helper.height * state.scaleHelper};
 
     // MATH TASK
-    // POSITIONS FOR WINDOW
+    // ------------------ POSITIONS FOR WINDOW ------------------
     float columnWidth = 150;
     float columnHeight = 60;
     float columnPosX = 920;
     float columnPosY = 390;
-
-    state.columnChoiceRecs[0] = (Rectangle){columnPosX, columnPosY, columnWidth, columnHeight};
-    state.columnChoiceRecs[1] = (Rectangle){columnPosX, columnPosY + 76, columnWidth, columnHeight};
-    state.columnChoiceRecs[2] = (Rectangle){columnPosX, columnPosY + 153, columnWidth, columnHeight};
-    state.columnChoiceRecs[3] = (Rectangle){columnPosX, columnPosY + 229, columnWidth, columnHeight};
-
-    // POSITIONS FOR CHALK BOARD
-    float gridPosX = 305;
-    float gridPosY = 350;
-    float gridGapX = 500;
-    float gridGapY = 170;
+    float gapY = 76.0f;
 
     for (int i = 0; i < 4; i++)
     {
-        int col = i % 2; // 0 (Izq) o 1 (Der)
-        int row = i / 2; // 0 (Arriba) o 1 (Abajo)
-
-        state.grid2x2ChoiceRecs[i] = (Rectangle){
-            gridPosX + (col * gridGapX),
-            gridPosY + (row * gridGapY),
+        state.leftMathAnswersRec[i] = (Rectangle){
+            columnPosX,
+            columnPosY + (i * gapY),
             columnWidth,
             columnHeight};
+    }
+
+    // ------------------ POSITIONS FOR CHALK BOARD ------------------
+    float newColumnWidth = 200.0f;
+    float newColumnHeight = 80.0f;
+    float newColumnPosX = 800.0f;
+    float newColumnPosY = 150.0f;
+    float newSeparation = 15.0f;
+
+    float newGapY = newColumnHeight + newSeparation;
+
+    for (int i = 0; i < 4; i++)
+    {
+        state.centerMathAnswersRec[i] = (Rectangle){
+            newColumnPosX,
+            newColumnPosY + (i * newGapY), // Posición Y = Inicio + (índice * salto total)
+            newColumnWidth,
+            newColumnHeight};
     }
 
     // Timer Setup
@@ -113,7 +121,6 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
     UpdateMusicStream(res->introMusic);
     if (IsKeyPressed(KEY_ENTER))
     {
-        PlayMusicStream(res->backgroundNoise);
         StopMusicStream(res->introMusic);
         PlayMusicStream(res->monoV1);
 
@@ -236,6 +243,7 @@ void DrawCenterTaskWindow(const Ts_resources *res, Ts_GameState *state)
 void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+    Ts_MathTaskData *currentTask = &state->centerMathTask;
 
     if (CheckCollisionPointRec(mousePos, state->returnArrowRec))
     {
@@ -248,13 +256,14 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->grid2x2ChoiceRecs[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->centerMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             state->idleTime = 0.0f; // Restarts idleTimer
 
-            if (i == state->mathCorrectIndex)
+            if (i == currentTask->correctIndex)
             {
                 PlaySound(res->writingOnBoard);
+                currentTask->isActive = false;
                 state->isCenterTaskTrue = 0;
                 state->correctPoints++;
                 ChangeGameState(LogicClassroom, DrawClassroom);
@@ -288,22 +297,23 @@ void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
         DrawTextureEx(res->tutorialWindow, state->tutorialWindowPos, 0.0f, 0.5f, WHITE);
     }
 
+    Ts_MathTaskData *currentTask = &state->centerMathTask;
+
     char questionString[16];
-    sprintf(questionString, "%d %c %d %c", state->math_num1, state->math_operator, state->math_num2, '?');
-    DrawText(questionString, 465, 150, 70, LIGHTGRAY);
+    sprintf(questionString, "%d %c %d %s", currentTask->num1, currentTask->op, currentTask->num2, "= ?");
+    DrawText(questionString, 250, 250, 70, LIGHTGRAY);
 
     for (int i = 0; i < 4; i++)
     {
-        // 3. DIBUJAR (Tu lógica original de centrado funciona igual)
         char answersOnScreen[10];
-        sprintf(answersOnScreen, "%d", state->mathChoicesList[i]);
+        sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
 
-        // Dibujar borde para ver dónde están (opcional, ayuda a visualizar)
-        // DrawRectangleLinesEx(state->grid2x2ChoiceRecs[i], 2, LIGHTGRAY);
+        DrawRectangleLinesEx(state->centerMathAnswersRec[i], 3, LIGHTGRAY);
 
-        int textWidth = MeasureText(answersOnScreen, 70);
-        int answerPosX = (int)(state->grid2x2ChoiceRecs[i].x + (state->grid2x2ChoiceRecs[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(state->grid2x2ChoiceRecs[i].y + (state->grid2x2ChoiceRecs[i].height / 2) - (40 / 2));
+        int textWidth = MeasureText(answersOnScreen, 60);
+
+        int answerPosX = (int)(state->centerMathAnswersRec[i].x + (state->centerMathAnswersRec[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(state->centerMathAnswersRec[i].y + (state->centerMathAnswersRec[i].height / 2) - (60 / 2));
 
         DrawText(answersOnScreen, answerPosX, answerPosY, 60, LIGHTGRAY);
     }
@@ -353,6 +363,8 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
 
+    Ts_MathTaskData *currentTask = &state->leftMathTask;
+
     if (CheckCollisionPointRec(mousePos, state->returnArrowRec))
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
@@ -364,13 +376,14 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->columnChoiceRecs[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->leftMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             state->idleTime = 0.0f; // Restarts idleTimer
 
-            if (i == state->mathCorrectIndex)
+            if (i == currentTask->correctIndex)
             {
                 PlaySound(res->eatingCookie);
+                currentTask->isActive = false;
                 state->isLeftTaskTrue = 0;
                 state->correctPoints++;
                 ChangeGameState(LogicClassroom, DrawClassroom);
@@ -397,14 +410,15 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     DrawTextureEx(res->leftTaskTrue, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE);
-    DrawTextureEx(res->mathBook, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE); // *******************************************
+
+    Ts_MathTaskData *currentTask = &state->leftMathTask;
 
     char mathNum1[16];
-    sprintf(mathNum1, "%d", state->math_num1);
+    sprintf(mathNum1, "%d", currentTask->num1);
     int widthNum1 = MeasureText(mathNum1, 50);
 
     char mathNum2[16];
-    sprintf(mathNum2, "%c %d", state->math_operator, state->math_num2);
+    sprintf(mathNum2, "%c %d", currentTask->op, currentTask->num2);
     int widthLine2 = MeasureText(mathNum2, 50);
 
     char mathQuestion[16] = "?";
@@ -417,12 +431,14 @@ void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
     for (int i = 0; i < 4; i++)
     {
         char answersOnScreen[10];
-        sprintf(answersOnScreen, "%d", state->mathChoicesList[i]);
+        sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
 
         int textWidth = MeasureText(answersOnScreen, 40);
 
-        int answerPosX = (int)(state->columnChoiceRecs[i].x + (state->columnChoiceRecs[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(state->columnChoiceRecs[i].y + (state->columnChoiceRecs[i].height / 2) - (40 / 2));
+        DrawRectangleLinesEx(state->leftMathAnswersRec[i], 3, BLACK);
+
+        int answerPosX = (int)(state->leftMathAnswersRec[i].x + (state->leftMathAnswersRec[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(state->leftMathAnswersRec[i].y + (state->leftMathAnswersRec[i].height / 2) - (40 / 2));
 
         DrawText(answersOnScreen, answerPosX, answerPosY, 40, BLACK);
     }
@@ -439,7 +455,39 @@ void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
-    if (CheckCollisionPointRec(mousePos, state->returnArrowRec))
+    if (CheckCollisionPointRec(mousePos, state->RightreturnArrowRec))
+    {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            PlaySound(res->arrowClick);
+            ChangeGameState(LogicClassroom, DrawClassroom);
+            return;
+        }
+    }
+    if (CheckCollisionPointRec(mousePos, state->flashlightRec))
+    {
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            ChangeGameState(LogicRightTaskWindowLight, DrawRightTaskWindowLigth);
+        }
+    }
+}
+
+void DrawRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
+{
+    DrawTextureEx(res->helper, state->helperPos, 0.0f, state->scaleHelper, WHITE);
+    DrawTextureEx(res->rightTaskWindow, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE);
+    DrawTextureEx(res->returnArrow, state->RightreturnRightArrowPos, 0.0f, state->scaleReturnArrow, WHITE);
+    if (state->isHelpWindow)
+    {
+        DrawTextureEx(res->tutorialWindow, state->tutorialWindowPos, 0.0f, 0.5f, WHITE);
+    }
+}
+
+void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state)
+{
+    Vector2 mousePos = GetMousePosition();
+    if (CheckCollisionPointRec(mousePos, state->RightreturnArrowRec))
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
@@ -453,20 +501,20 @@ void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->arrowClick);
+            ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
         }
     }
 }
 
-void DrawRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void DrawRightTaskWindowLigth(const Ts_resources *res, Ts_GameState *state)
 {
     DrawTextureEx(res->helper, state->helperPos, 0.0f, state->scaleHelper, WHITE);
-    DrawTextureEx(res->rightTaskWindow, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->returnArrowPos, 0.0f, state->scaleReturnArrow, WHITE);
+    DrawTextureEx(res->rightTaskWindowLights, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE);
+    DrawTextureEx(res->returnArrow, state->RightreturnRightArrowPos, 0.0f, state->scaleReturnArrow, WHITE);
     if (state->isHelpWindow)
     {
         DrawTextureEx(res->tutorialWindow, state->tutorialWindowPos, 0.0f, 0.5f, WHITE);
     }
-    DrawRectangleLines(597, 640, 70, 70, RED);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -491,11 +539,12 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state)
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state)
 {
     StopMusicStream(res->monoV1);
-    StopMusicStream(res->monoV1);
+    UpdateMusicStream(res->backgroundNoise);
 
     if (IsKeyPressed(KEY_ENTER))
     {
         state->idleTime = 0;
+        StopMusicStream(res->backgroundNoise);
         ChangeGameState(LogicStartScreen, DrawStartScreen);
         return;
     }
@@ -553,8 +602,8 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
         {
             return;
         }
-        mathTaskGenerator(res, state);
-        state->taskBookIndex = GetRandomValue(0, 19);
+        Ts_MathTaskData *currentTask = &state->leftMathTask;
+        leftMathTaskGenerator(currentTask);
         state->isLeftTaskTrue = 1;
         return;
     }
@@ -564,9 +613,9 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
         {
             return;
         }
-        mathTaskGenerator(res, state);
+        Ts_MathTaskData *currentTask = &state->centerMathTask;
+        centerMathTaskGenerator(currentTask);
         PlaySound(res->writingOnBoard);
-        state->taskBookIndex = GetRandomValue(0, 19);
         state->isCenterTaskTrue = 1;
         return;
     }
@@ -577,48 +626,26 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
             return;
         }
         PlaySound(res->girlLaugh);
-        state->taskBookIndex = GetRandomValue(0, 19);
         state->isRightTaskTrue = 1;
         return;
     }
     return;
 }
 
-void mathTaskGenerator(const Ts_resources *res, Ts_GameState *state)
+void leftMathTaskGenerator(Ts_MathTaskData *task)
 {
-    state->math_num1 = GetRandomValue(0, 200);
-    state->math_num2 = GetRandomValue(1, 200);
-    int op = GetRandomValue(0, 2);
-    if (op == 0)
-    {
-        state->math_operator = '+';
-        state->math_correctAnswer = state->math_num1 + state->math_num2;
-    }
-    if (op == 1)
-    {
-        state->math_operator = '-';
-        if (state->math_num1 < state->math_num2)
-        {
-            int temp = state->math_num1;
-            state->math_num1 = state->math_num2;
-            state->math_num2 = temp;
-        }
-        state->math_correctAnswer = state->math_num1 - state->math_num2;
-    }
-    if (op == 2)
-    {
-        state->math_num1 = GetRandomValue(0, 100);
-        state->math_num2 = GetRandomValue(1, 100);
-        state->math_operator = 'x';
-        state->math_correctAnswer = state->math_num1 * state->math_num2;
-    }
+    task->num1 = GetRandomValue(10, 200);
+    task->num2 = GetRandomValue(10, 200);
+    task->op = '+';
+    task->correctAnswer = task->num1 + task->num2;
+    task->isActive = true;
 
-    state->mathCorrectIndex = GetRandomValue(0, 3);
-    state->mathChoicesList[state->mathCorrectIndex] = state->math_correctAnswer;
+    task->correctIndex = GetRandomValue(0, 3);
+    task->choicesList[task->correctIndex] = task->correctAnswer;
 
     for (int i = 0; i < 4; i++)
     {
-        if (i == state->mathCorrectIndex)
+        if (i == task->correctIndex)
         {
             continue;
         }
@@ -626,10 +653,39 @@ void mathTaskGenerator(const Ts_resources *res, Ts_GameState *state)
         int wrongAnswer;
         do
         {
-            wrongAnswer = state->math_correctAnswer + GetRandomValue(-5, 5);
-        } while (wrongAnswer == state->math_correctAnswer);
+            wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
+        } while (wrongAnswer == task->correctAnswer);
 
-        state->mathChoicesList[i] = wrongAnswer;
+        task->choicesList[i] = wrongAnswer;
+    }
+    return;
+}
+
+void centerMathTaskGenerator(Ts_MathTaskData *task)
+{
+    task->num1 = GetRandomValue(0, 100);
+    task->num2 = GetRandomValue(1, 100);
+    task->op = 'x';
+    task->correctAnswer = task->num1 * task->num2;
+    task->isActive = true;
+
+    task->correctIndex = GetRandomValue(0, 3);
+    task->choicesList[task->correctIndex] = task->correctAnswer;
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (i == task->correctIndex)
+        {
+            continue;
+        }
+
+        int wrongAnswer;
+        do
+        {
+            wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
+        } while (wrongAnswer == task->correctAnswer);
+
+        task->choicesList[i] = wrongAnswer;
     }
     return;
 }
