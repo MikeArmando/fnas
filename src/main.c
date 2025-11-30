@@ -1,10 +1,7 @@
 #include "raylib.h"
 #include "resource_dir.h"
 #include "resources.h"
-#include "config.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+#include "state.h"
 
 int main()
 {
@@ -14,50 +11,64 @@ int main()
 	SearchAndSetResourceDir("resources");
 	InitAudioDevice();
 
-	// ----------------- Load Resources And Config---------------------
-	resources_load();
-	const Ts_resources *res = resources_get();
+	// ----------------- Load Resources And State -----------------
+	resourcesLoad();
+	const Ts_resources *res = resourcesGet();
 	Ts_GameState gameState = GameState_config(res);
 
-	// --------------------- Inicial Music ---------------------
+	// ----------------- Inicialize Music -----------------
 	PlayMusicStream(res->introMusic);
 
-	// --------------------- Inicialize State ---------------------
+	// ----------------- Inicialize State -----------------
 	ChangeGameState(LogicStartScreen, DrawStartScreen);
 
-	// --------------------- Game Loop ---------------------
+	// ----------------- Game Loop -----------------
 	while (!WindowShouldClose())
 	{
-		UpdateMusicStream(res->introMusic);
-		UpdateMusicStream(res->m1Track);
 		UpdateMusicStream(res->monoV1);
+		UpdateMusicStream(res->backgroundNoise);
 
 		// ----------------- Logic Section -----------------
 		GameLogicFunction currentLogic = GetCurrentLogic();
-		if (currentLogic != NULL)
+		if (currentLogic)
 		{
 			currentLogic(res, &gameState);
 		}
 
-		float monoV1Played = GetMusicTimePlayed(res->monoV1);
-		float monoV1Len = GetMusicTimeLength(res->monoV1);
-		if (monoV1Len > 0.001f && monoV1Played + 0.05f >= monoV1Len)
+		if (currentLogic != LogicStartScreen)
 		{
-			StopMusicStream(res->monoV1);
+			if (currentLogic != LogicLostScreen)
+			{
+				// Start task
+				StartTimerTask(res, &gameState);
+
+				// Idle Timer
+				playerIdleTimer(res, &gameState);
+			}
+		}
+
+		// Monologue
+		float monoTimePlayed = GetMusicTimePlayed(res->monoV1);
+		if (gameState.monoLen > 0.001f)
+		{
+			if (monoTimePlayed + 0.05f >= gameState.monoLen)
+			{
+				StopMusicStream(res->monoV1);
+			}
 		}
 
 		// ----------------- Drawing Section -----------------
 		BeginDrawing();
 		GameDrawFunction currentDraw = GetCurrentDraw();
-		if (currentDraw != NULL)
+		if (currentDraw)
 		{
 			currentDraw(res, &gameState);
 		}
 		EndDrawing();
 	}
 
-	// --------------------- Clean Up ---------------------
-	resources_unload();
+	// ----------------- Clean Up -----------------
+	resourcesUnload();
 	CloseAudioDevice();
 	CloseWindow();
 	return 0;

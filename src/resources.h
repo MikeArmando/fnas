@@ -9,6 +9,7 @@ typedef struct _Resources
     Texture2D leftTaskWindow;
     Texture2D centerTaskWindow;
     Texture2D rightTaskWindow;
+    Texture2D rightTaskWindowLights;
     Texture2D tutorialWindow;
 
     // Background task indicators
@@ -27,17 +28,22 @@ typedef struct _Resources
     Texture2D returnArrow;
     Texture2D helper;
 
-    // tasks books
-    Texture2D taskList[20];
+    // Math book
+    Texture2D mathBook;
 
     // Music
     Music introMusic;
     Music m1Track;
     Music monoV1;
     Music monoV2;
+    Music backgroundNoise;
 
     // Sound Effects
     Sound arrowClick;
+    Sound suspenseSound;
+    Sound hasWon;
+    Sound hasLost;
+    Sound incorrect;
 
     // Left task
     Sound knockingOnWindow;
@@ -47,12 +53,10 @@ typedef struct _Resources
     // Rigth task
     Sound girlLaugh;
     Sound doorClosed;
-
-    Image icon;
 } Ts_resources;
 
-void resources_load();
+void resourcesLoad();
 
-void resources_unload();
+void resourcesUnload();
 
-const Ts_resources *resources_get();
+const Ts_resources *resourcesGet();

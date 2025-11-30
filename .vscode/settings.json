@@ -22,6 +22,9 @@
 		"resources.h": "c",
 		"string.h": "c",
 		"time.h": "c",
-		"config.h": "c"
+		"config.h": "c",
+		"stdio.h": "c",
+		"string": "c",
+		"format": "c"
 	}
 }

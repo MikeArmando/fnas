@@ -3,16 +3,17 @@
 
 static Ts_resources res;
 
-void resources_load()
+void resourcesLoad()
 {
     // set struct at 0
     memset(&res, 0, sizeof(Ts_resources));
 
     // Background
     res.classroomWindow = LoadTexture("backgrounds/classroom_default.png");
-    res.centerTaskWindow = LoadTexture("backgrounds/center_task_window.png");
+    res.centerTaskWindow = LoadTexture("backgrounds/center_task.png");
     res.leftTaskWindow = LoadTexture("backgrounds/left_task_window.png");
     res.rightTaskWindow = LoadTexture("backgrounds/right_task_window.png");
+    res.rightTaskWindowLights = LoadTexture("backgrounds/right_task_window_lights.png");
     res.tutorialWindow = LoadTexture("backgrounds/tutorial.jpg");
 
     // Background task indicators
@@ -21,8 +22,8 @@ void resources_load()
 
     // Background task true
     res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
-    res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
-    res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
+    res.centerTaskTrue = LoadTexture("backgrounds/left_task_true.png");
+    res.rightTaskTrue = LoadTexture("backgrounds/left_task_true.png");
 
     // Objects
     res.centerArrow = LoadTexture("objects/arrow_up.png");
@@ -32,21 +33,19 @@ void resources_load()
     res.helper = LoadTexture("objects/helper.png");
 
     // Task books
-    res.taskList[0] = LoadTexture("objects/task_v1.png");
-    res.taskList[1] = LoadTexture("objects/task_v1.png");
-    res.taskList[3] = LoadTexture("objects/task_v1.png");
-    res.taskList[4] = LoadTexture("objects/task_v1.png");
-    res.taskList[5] = LoadTexture("objects/task_v1.png");
-
-    res.icon = LoadImage("objects/icon.jpg");
+    res.mathBook = LoadTexture("objects/task_v1.png");
 
     // Music
     res.introMusic = LoadMusicStream("music/intro.mp3");
-    res.m1Track = LoadMusicStream("music/m2.mp3");
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
+    res.backgroundNoise = LoadMusicStream("music/background_music.mp3");
 
     // Sound Effect
     res.arrowClick = LoadSound("soundEffects/click.mp3");
+    res.suspenseSound = LoadSound("soundEffects/suspense.mp3");
+    res.hasWon = LoadSound("soundEffects/has_won.mp3");
+    res.hasLost = LoadSound("soundEffects/has_won.mp3");
+    res.incorrect = LoadSound("soundEffects/incorrect.mp3");
 
     // Left task
     res.knockingOnWindow = LoadSound("soundEffects/knocking_window.mp3");
@@ -61,17 +60,20 @@ void resources_load()
 
     // Volume Config
     SetMusicVolume(res.introMusic, 0.8f);
-    SetMusicVolume(res.m1Track, 0.5f);
-    SetMusicVolume(res.monoV1, 1.0f);
+    SetMusicVolume(res.m1Track, 0.3f);
+    SetMusicVolume(res.monoV1, 0.8f);
+    SetMusicVolume(res.backgroundNoise, 0.17f);
 
     SetSoundVolume(res.knockingOnWindow, 0.8f);
+    SetSoundVolume(res.suspenseSound, 0.3f);
     SetSoundVolume(res.eatingCookie, 0.8f);
     SetSoundVolume(res.girlLaugh, 0.8f);
     SetSoundVolume(res.doorClosed, 0.8f);
     SetSoundVolume(res.writingOnBoard, 0.8f);
+    SetSoundVolume(res.incorrect, 0.8f);
 }
 
-void resources_unload()
+void resourcesUnload()
 {
     // Music
     StopMusicStream(res.introMusic);
@@ -81,6 +83,7 @@ void resources_unload()
     UnloadMusicStream(res.introMusic);
     UnloadMusicStream(res.m1Track);
     UnloadMusicStream(res.monoV1);
+    UnloadMusicStream(res.backgroundNoise);
 
     // Sound Effect
     UnloadSound(res.knockingOnWindow);
@@ -88,26 +91,38 @@ void resources_unload()
     UnloadSound(res.girlLaugh);
     UnloadSound(res.doorClosed);
     UnloadSound(res.writingOnBoard);
+    UnloadSound(res.suspenseSound);
+    UnloadSound(res.hasWon);
+    UnloadSound(res.incorrect);
 
     // Texture
     UnloadTexture(res.classroomWindow);
     UnloadTexture(res.centerTaskWindow);
     UnloadTexture(res.leftTaskWindow);
     UnloadTexture(res.rightTaskWindow);
+    UnloadTexture(res.rightTaskWindowLights);
     UnloadTexture(res.tutorialWindow);
+
+    UnloadTexture(res.leftTaskTrue);
+    UnloadTexture(res.centerTaskTrue);
+    UnloadTexture(res.rightTaskTrue);
+
     UnloadTexture(res.centerIndicator);
     UnloadTexture(res.leftIndicator);
+
     UnloadTexture(res.centerArrow);
     UnloadTexture(res.leftArrow);
     UnloadTexture(res.rightArrow);
+    UnloadTexture(res.returnArrow);
+
     UnloadTexture(res.helper);
-    UnloadImage(res.icon);
+    UnloadTexture(res.mathBook);
 
     // Zero out the struct for safety
     memset(&res, 0, sizeof(Ts_resources));
 }
 
-const Ts_resources *resources_get()
+const Ts_resources *resourcesGet()
 {
     return &res;
 }
