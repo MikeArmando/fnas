@@ -23,7 +23,7 @@ void resourcesLoad()
     // Background task true
     res.leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
     res.centerTaskTrue = LoadTexture("backgrounds/left_task_true.png");
-    res.rightTaskTrue = LoadTexture("backgrounds/left_task_true.png");
+    res.rightTaskTrue = LoadTexture("backgrounds/right_task_window_true.png");
 
     // Objects
     res.centerArrow = LoadTexture("objects/arrow_up.png");
@@ -31,11 +31,13 @@ void resourcesLoad()
     res.rightArrow = LoadTexture("objects/arrow_right.png");
     res.returnArrow = LoadTexture("objects/arrow_down.png");
     res.helper = LoadTexture("objects/helper.png");
+    res.monsterJumpscareImage = LoadTexture("backgrounds/monster_jumpscare.png");
 
     // Music
-    res.introMusic = LoadMusicStream("music/intro.mp3");
+    res.intro = LoadMusicStream("music/intro.mp3");
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
-    res.backgroundNoise = LoadMusicStream("music/background_music.mp3");
+    res.ending = LoadMusicStream("music/ending.mp3");
+    res.background = LoadMusicStream("music/background.mp3");
 
     // Sound Effect
     res.arrowClick = LoadSound("soundEffects/click.mp3");
@@ -43,9 +45,11 @@ void resourcesLoad()
     res.hasWon = LoadSound("soundEffects/has_won.mp3");
     res.hasLost = LoadSound("soundEffects/has_won.mp3");
     res.incorrect = LoadSound("soundEffects/incorrect.mp3");
+    res.doorOpening = LoadSound("soundEffects/door_opening.mp3");
+    res.girlJumpscare = LoadSound("soundEffects/girl_jumpscare.mp3");
+    res.monsterJumpscare = LoadSound("soundEffects/monster_jumpscare.mp3");
 
     // Left task
-    res.knockingOnWindow = LoadSound("soundEffects/knocking_window.mp3");
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");
 
     // Center task
@@ -56,11 +60,13 @@ void resourcesLoad()
     res.doorClosed = LoadSound("soundEffects/closed_door_effect.mp3");
 
     // Volume Config
-    SetMusicVolume(res.introMusic, 0.8f);
+    SetMusicVolume(res.intro, 0.8f);
     SetMusicVolume(res.m1Track, 0.3f);
     SetMusicVolume(res.monoV1, 0.8f);
-    SetMusicVolume(res.backgroundNoise, 0.8f);
+    SetMusicVolume(res.ending, 0.7f);
+    SetMusicVolume(res.background, 2.0f);
 
+    SetSoundVolume(res.arrowClick, 0.8f);
     SetSoundVolume(res.knockingOnWindow, 0.8f);
     SetSoundVolume(res.suspenseSound, 0.3f);
     SetSoundVolume(res.eatingCookie, 0.8f);
@@ -73,14 +79,17 @@ void resourcesLoad()
 void resourcesUnload()
 {
     // Music
-    StopMusicStream(res.introMusic);
+    StopMusicStream(res.intro);
     StopMusicStream(res.m1Track);
     StopMusicStream(res.monoV1);
+    StopMusicStream(res.ending);
+    StopMusicStream(res.background);
 
-    UnloadMusicStream(res.introMusic);
+    UnloadMusicStream(res.intro);
     UnloadMusicStream(res.m1Track);
     UnloadMusicStream(res.monoV1);
-    UnloadMusicStream(res.backgroundNoise);
+    UnloadMusicStream(res.ending);
+    UnloadMusicStream(res.background);
 
     // Sound Effect
     UnloadSound(res.knockingOnWindow);

@@ -17,8 +17,8 @@ int main()
 	Ts_GameState gameState = GameState_config(res);
 
 	// ----------------- Inicialize Music -----------------
-	PlayMusicStream(res->introMusic);
-	PlayMusicStream(res->backgroundNoise);
+	PlayMusicStream(res->intro);
+	PlayMusicStream(res->background);
 
 	// ----------------- Inicialize State -----------------
 	ChangeGameState(LogicStartScreen, DrawStartScreen);
@@ -39,6 +39,8 @@ int main()
 		{
 			if (currentLogic != LogicLostScreen)
 			{
+				UpdateMusicStream(res->background);
+
 				// Start task
 				StartTimerTask(res, &gameState);
 
@@ -57,12 +59,15 @@ int main()
 			}
 		}
 
+		UpdateBlink();
+
 		// ----------------- Drawing Section -----------------
 		BeginDrawing();
 		GameDrawFunction currentDraw = GetCurrentDraw();
 		if (currentDraw)
 		{
 			currentDraw(res, &gameState);
+			DrawBlink();
 		}
 		EndDrawing();
 	}

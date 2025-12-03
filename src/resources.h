@@ -28,12 +28,15 @@ typedef struct _Resources
     Texture2D returnArrow;
     Texture2D helper;
 
+    Texture2D monsterJumpscareImage;
+
     // Music
-    Music introMusic;
+    Music intro;
     Music m1Track;
     Music monoV1;
     Music monoV2;
-    Music backgroundNoise;
+    Music background;
+    Music ending;
 
     // Sound Effects
     Sound arrowClick;
@@ -41,6 +44,9 @@ typedef struct _Resources
     Sound hasWon;
     Sound hasLost;
     Sound incorrect;
+    Sound doorOpening;
+    Sound girlJumpscare;
+    Sound monsterJumpscare;
 
     // Left task
     Sound knockingOnWindow;
