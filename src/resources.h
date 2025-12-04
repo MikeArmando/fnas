@@ -46,7 +46,6 @@ typedef struct _Resources
     Sound incorrect;
     Sound doorOpening;
     Sound girlJumpscare;
-    Sound monsterJumpscare;
 
     // Left task
     Sound knockingOnWindow;

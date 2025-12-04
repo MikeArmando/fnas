@@ -47,7 +47,6 @@ void resourcesLoad()
     res.incorrect = LoadSound("soundEffects/incorrect.mp3");
     res.doorOpening = LoadSound("soundEffects/door_opening.mp3");
     res.girlJumpscare = LoadSound("soundEffects/girl_jumpscare.mp3");
-    res.monsterJumpscare = LoadSound("soundEffects/monster_jumpscare.mp3");
 
     // Left task
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");

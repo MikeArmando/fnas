@@ -2,6 +2,11 @@
 #include "raylib.h"
 #include "resources.h"
 
+typedef struct _GameState Ts_GameState;
+
+typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
+typedef void (*GameDrawFunction)(const Ts_resources *res, Ts_GameState *state);
+
 typedef struct _Helper
 {
     float scaleHelper;
@@ -36,7 +41,7 @@ typedef struct _Jumpscare
 {
     float jumpscareTimer;
     int jumpscareAudioPlayed;
-    int jumpscareType;
+    GameDrawFunction lastDrawFunction;
 } Ts_Jumpscare;
 
 typedef struct _GameState
@@ -109,9 +114,6 @@ typedef struct _GameState
 } Ts_GameState;
 
 // ----------------- Prototyps -----------------
-typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
-typedef void (*GameDrawFunction)(const Ts_resources *res, Ts_GameState *state);
-
 Ts_GameState GameState_config(const Ts_resources *res);
 
 // -------------------------- Start Section --------------------------

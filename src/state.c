@@ -309,7 +309,7 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                 if (state->incorrectPoints >= 5)
                 {
                     PlayMusicStream(res->ending);
-                    PlaySound(res->monsterJumpscare);
+                    PlaySound(res->girlJumpscare);
                     TriggerJumpscare(state);
                     return;
                 }
@@ -689,7 +689,6 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
     {
         state->safeTime = 0.0f;
         state->idleTime = 0.0f;
-        state->JumpscareConfig.jumpscareType = 1;
         TriggerJumpscare(state);
     }
 }
@@ -888,6 +887,8 @@ void DrawBlink(void)
 // --------------------------- JUMPSCARE EFFECT ---------------------------
 void TriggerJumpscare(Ts_GameState *state)
 {
+    state->JumpscareConfig.lastDrawFunction = GetCurrentDraw();
+
     state->JumpscareConfig.jumpscareTimer = 0.0f;
     state->JumpscareConfig.jumpscareAudioPlayed = 0;
 
@@ -910,13 +911,8 @@ void LogicJumpscare(const Ts_resources *res, Ts_GameState *state)
         state->JumpscareConfig.jumpscareAudioPlayed = 1;
     }
 
-    if (state->JumpscareConfig.jumpscareTimer >= 3.0f)
+    if (state->JumpscareConfig.jumpscareTimer >= 1.0f)
     {
-        if (state->JumpscareConfig.jumpscareType == 1)
-        {
-            PlaySound(res->girlJumpscare);
-        }
-
         TriggerBlink(6.0f, BLACK, 0.0f);
         PlayMusicStream(res->ending);
         ChangeGameState(LogicLostScreen, DrawLostScreen);
@@ -925,16 +921,19 @@ void LogicJumpscare(const Ts_resources *res, Ts_GameState *state)
 
 void DrawJumpscare(const Ts_resources *res, Ts_GameState *state)
 {
-    if (state->JumpscareConfig.jumpscareTimer >= 1.7f)
+    if (state->JumpscareConfig.jumpscareTimer < 1.7f)
     {
-        ClearBackground(BLACK);
+        if (GetRandomValue(0, 10) > 4)
+        {
+            ClearBackground(BLACK);
+        }
+        else
+        {
+            state->JumpscareConfig.lastDrawFunction(res, state);
+        }
     }
     else
     {
-        if (GetRandomValue(0, 10) > 3)
-        {
-            DrawTextureEx(res->monsterJumpscareImage, state->backgroundPosFit, 0.0f, state->scaleFit, WHITE);
-        }
         ClearBackground(BLACK);
     }
 }
