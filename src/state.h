@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "resources.h"
 
+// ----------------- Inizi -----------------
 typedef struct _GameState Ts_GameState;
 
 typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
@@ -169,6 +170,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state);
 void leftMathTaskGenerator(Ts_MathTaskData *task);
 void centerMathTaskGenerator(Ts_MathTaskData *task);
 void rightMathTaskGenerator(Ts_MathTaskData *task);
+void assignWrongChoices(Ts_MathTaskData *task);
 
 // -------------------------- Blink Effect --------------------------
 void TriggerBlink(float duration, Color color, float frequency);

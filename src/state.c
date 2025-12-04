@@ -18,6 +18,7 @@ Ts_GameState GameState_config(const Ts_resources *res)
     float sx = (float)GetScreenWidth() / (float)res->classroomWindow.width;
     float sy = (float)GetScreenHeight() / (float)res->classroomWindow.height;
     state.scaleFit = fminf(sx, sy);
+
     state.backgroundPosFit = (Vector2){(GetScreenWidth() - res->classroomWindow.width * state.scaleFit) / 2.0f, (GetScreenHeight() - res->classroomWindow.height * state.scaleFit) / 2.0f};
 
     // Tutorial Window
@@ -299,11 +300,11 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
+                TriggerBlink(0.2f, BLACK, 0.0f);
                 ChangeGameState(LogicClassroom, DrawClassroom);
             }
             else
             {
-                PlaySound(res->incorrect);
                 state->incorrectPoints++;
 
                 if (state->incorrectPoints >= 5)
@@ -313,6 +314,8 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                     TriggerJumpscare(state);
                     return;
                 }
+                TriggerBlink(0.1f, RED, 0.0f);
+                PlaySound(res->incorrect);
             }
             return;
         }
@@ -408,7 +411,6 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                 currentTask->isActive = false;
                 state->isCenterTaskTrue = 0;
                 state->correctPoints++;
-                TriggerBlink(0.2f, BLACK, 0.0f);
 
                 if (state->correctPoints >= 10)
                 {
@@ -417,11 +419,11 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
+                TriggerBlink(0.2f, BLACK, 0.0f);
                 ChangeGameState(LogicClassroom, DrawClassroom);
             }
             else
             {
-                PlaySound(res->incorrect);
                 state->incorrectPoints++;
 
                 if (state->incorrectPoints >= 5)
@@ -431,6 +433,8 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                     TriggerJumpscare(state);
                     return;
                 }
+                TriggerBlink(0.1f, RED, 0.0f);
+                PlaySound(res->incorrect);
             }
             return;
         }
@@ -574,11 +578,11 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
+                TriggerBlink(0.2f, BLACK, 0.0f);
                 ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
             }
             else
             {
-                PlaySound(res->incorrect);
                 state->incorrectPoints++;
 
                 if (state->incorrectPoints >= 5)
@@ -588,6 +592,8 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
                     TriggerJumpscare(state);
                     return;
                 }
+                PlaySound(res->incorrect);
+                TriggerBlink(1.0f, RED, 0.0f);
             }
             return;
         }
@@ -696,7 +702,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
 // --------------------------------------- ASSIGN TASK SECTION ---------------------------------------
 void StartTimerTask(const Ts_resources *res, Ts_GameState *state)
 {
-    if (state->safeTime > 2.0f)
+    if (state->safeTime > 10.0f)
     {
         float deltatime = GetFrameTime();
         state->currentTime += deltatime;
@@ -759,28 +765,13 @@ void leftMathTaskGenerator(Ts_MathTaskData *task)
     task->correctIndex = GetRandomValue(0, 3);
     task->choicesList[task->correctIndex] = task->correctAnswer;
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (i == task->correctIndex)
-        {
-            continue;
-        }
-
-        int wrongAnswer;
-        do
-        {
-            wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
-        } while (wrongAnswer == task->correctAnswer);
-
-        task->choicesList[i] = wrongAnswer;
-    }
-    return;
+    assignWrongChoices(task);
 }
 
 void centerMathTaskGenerator(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(1, 100);
-    task->num2 = GetRandomValue(0, 100);
+    task->num1 = GetRandomValue(1, 10);
+    task->num2 = GetRandomValue(0, 10);
     task->op = 'x';
     task->correctAnswer = task->num1 * task->num2;
     task->isActive = true;
@@ -788,22 +779,7 @@ void centerMathTaskGenerator(Ts_MathTaskData *task)
     task->correctIndex = GetRandomValue(0, 3);
     task->choicesList[task->correctIndex] = task->correctAnswer;
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (i == task->correctIndex)
-        {
-            continue;
-        }
-
-        int wrongAnswer;
-        do
-        {
-            wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
-        } while (wrongAnswer == task->correctAnswer);
-
-        task->choicesList[i] = wrongAnswer;
-    }
-    return;
+    assignWrongChoices(task);
 }
 
 void rightMathTaskGenerator(Ts_MathTaskData *task)
@@ -817,6 +793,11 @@ void rightMathTaskGenerator(Ts_MathTaskData *task)
     task->correctIndex = GetRandomValue(0, 3);
     task->choicesList[task->correctIndex] = task->correctAnswer;
 
+    assignWrongChoices(task);
+}
+
+void assignWrongChoices(Ts_MathTaskData *task)
+{
     for (int i = 0; i < 4; i++)
     {
         if (i == task->correctIndex)
@@ -825,14 +806,26 @@ void rightMathTaskGenerator(Ts_MathTaskData *task)
         }
 
         int wrongAnswer;
+        bool isDuplicate;
+
         do
         {
             wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
-        } while (wrongAnswer == task->correctAnswer);
+            isDuplicate = false;
+
+            for (int j = 0; j < i; j++)
+            {
+                if (task->choicesList[j] == wrongAnswer)
+                {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+        } while (isDuplicate || wrongAnswer == task->correctAnswer);
 
         task->choicesList[i] = wrongAnswer;
     }
-    return;
 }
 
 // --------------------------- BLINK EFFECT ---------------------------
