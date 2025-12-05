@@ -14,7 +14,7 @@ int main()
 	// ----------------- Load Resources And State -----------------
 	resourcesLoad();
 	const Ts_resources *res = resourcesGet();
-	Ts_GameState gameState = GameState_config(res);
+	Ts_GameState gameState = GameStateConfig(res);
 
 	// ----------------- Inicialize Music -----------------
 	PlayMusicStream(res->intro);
@@ -39,13 +39,16 @@ int main()
 		{
 			if (currentLogic != LogicLostScreen)
 			{
-				UpdateMusicStream(res->background);
+				if (currentLogic != LogicWonScreen)
+				{
+					UpdateMusicStream(res->background);
 
-				// Start task
-				StartTimerTask(res, &gameState);
+					// Start task
+					StartTimerTask(res, &gameState);
 
-				// Idle Timer
-				playerIdleTimer(res, &gameState);
+					// Idle Timer
+					playerIdleTimer(res, &gameState);
+				}
 			}
 		}
 

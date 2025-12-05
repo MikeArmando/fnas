@@ -37,6 +37,7 @@ typedef struct _Resources
     Music monoV2;
     Music background;
     Music ending;
+    Music won;
 
     // Sound Effects
     Sound arrowClick;
@@ -51,7 +52,8 @@ typedef struct _Resources
     Sound knockingOnWindow;
     Sound eatingCookie;
     // Center task
-    Sound writingOnBoard;
+    Sound ghostWriting;
+    Sound answerOnChalkboard;
     // Rigth task
     Sound girlLaugh;
     Sound doorClosed;

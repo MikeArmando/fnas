@@ -1,0 +1,15 @@
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 181.36 segundos
+Respuestas correctas: 6
+Respuestas incorrectas: 3
+
+Estado: GANASTE 
+Tiempo: 180.60 segundos
+Respuestas correctas: 15
+Respuestas incorrectas: 3
+

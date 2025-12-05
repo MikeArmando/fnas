@@ -37,6 +37,7 @@ void resourcesLoad()
     res.intro = LoadMusicStream("music/intro.mp3");
     res.monoV1 = LoadMusicStream("music/mono_v1.mp3");
     res.ending = LoadMusicStream("music/ending.mp3");
+    res.won = LoadMusicStream("music/won.mp3");
     res.background = LoadMusicStream("music/background.mp3");
 
     // Sound Effect
@@ -52,27 +53,27 @@ void resourcesLoad()
     res.eatingCookie = LoadSound("soundEffects/eating_effect.mp3");
 
     // Center task
-    res.writingOnBoard = LoadSound("soundEffects/writing_board.mp3");
+    res.answerOnChalkboard = LoadSound("soundEffects/answer_chalkboard.mp3");
+    res.ghostWriting = LoadSound("soundEffects/writing_board.mp3");
 
     // Right task
     res.girlLaugh = LoadSound("soundEffects/girl_laugh.mp3");
-    res.doorClosed = LoadSound("soundEffects/closed_door_effect.mp3");
 
     // Volume Config
     SetMusicVolume(res.intro, 0.8f);
     SetMusicVolume(res.m1Track, 0.3f);
     SetMusicVolume(res.monoV1, 0.8f);
     SetMusicVolume(res.ending, 0.7f);
+    SetMusicVolume(res.won, 0.8f);
     SetMusicVolume(res.background, 2.0f);
 
-    SetSoundVolume(res.arrowClick, 0.8f);
-    SetSoundVolume(res.knockingOnWindow, 0.8f);
+    SetSoundVolume(res.arrowClick, 0.5f);
     SetSoundVolume(res.suspenseSound, 0.3f);
-    SetSoundVolume(res.eatingCookie, 0.8f);
+    SetSoundVolume(res.eatingCookie, 0.7f);
     SetSoundVolume(res.girlLaugh, 0.8f);
-    SetSoundVolume(res.doorClosed, 0.8f);
-    SetSoundVolume(res.writingOnBoard, 0.8f);
-    SetSoundVolume(res.incorrect, 0.8f);
+    SetSoundVolume(res.ghostWriting, 0.8f);
+    SetSoundVolume(res.answerOnChalkboard, 0.6f);
+    SetSoundVolume(res.incorrect, 0.7f);
 }
 
 void resourcesUnload()
@@ -82,12 +83,14 @@ void resourcesUnload()
     StopMusicStream(res.m1Track);
     StopMusicStream(res.monoV1);
     StopMusicStream(res.ending);
+    StopMusicStream(res.won);
     StopMusicStream(res.background);
 
     UnloadMusicStream(res.intro);
     UnloadMusicStream(res.m1Track);
     UnloadMusicStream(res.monoV1);
     UnloadMusicStream(res.ending);
+    UnloadMusicStream(res.won);
     UnloadMusicStream(res.background);
 
     // Sound Effect
@@ -95,7 +98,8 @@ void resourcesUnload()
     UnloadSound(res.eatingCookie);
     UnloadSound(res.girlLaugh);
     UnloadSound(res.doorClosed);
-    UnloadSound(res.writingOnBoard);
+    UnloadSound(res.ghostWriting);
+    UnloadSound(res.answerOnChalkboard);
     UnloadSound(res.suspenseSound);
     UnloadSound(res.hasWon);
     UnloadSound(res.incorrect);

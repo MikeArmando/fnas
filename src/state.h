@@ -2,9 +2,8 @@
 #include "raylib.h"
 #include "resources.h"
 
-// ----------------- Inizi -----------------
+// ----------------- initialization -----------------
 typedef struct _GameState Ts_GameState;
-
 typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
 typedef void (*GameDrawFunction)(const Ts_resources *res, Ts_GameState *state);
 
@@ -45,38 +44,58 @@ typedef struct _Jumpscare
     GameDrawFunction lastDrawFunction;
 } Ts_Jumpscare;
 
-typedef struct _GameState
+typedef struct _Layout
 {
-    // Background Config
     float scaleFit;
     Vector2 backgroundPosFit;
 
-    // Arrow positions and scale
-    float scaleCenterArrow;
-    Vector2 centerArrowPos;
-    Rectangle centerArrowRec;
-
-    float scaleLeftArrow;
-    Vector2 leftArrowPos;
-    Rectangle leftArrowRec;
-
-    float scaleRightArrow;
-    Vector2 rightArrowPos;
-    Rectangle rightArrowRec;
-
+    float scaleArrow;
     float scaleReturnArrow;
+
+    Vector2 centerArrowPos;
+    Vector2 leftArrowPos;
+    Vector2 rightArrowPos;
     Vector2 returnArrowPos;
+
+    Rectangle centerArrowRec;
+    Rectangle leftArrowRec;
+    Rectangle rightArrowRec;
     Rectangle returnArrowRec;
 
-    Vector2 RightreturnRightArrowPos;
-    Rectangle RightreturnArrowRec;
+    Vector2 RightTaskReturnArrowPos;
+    Rectangle RightTaskReturnArrowRec;
 
     Rectangle flashlightRec;
 
-    // Helper positions and scale
+    Rectangle leftMathAnswersRec[4];
+    Rectangle centerMathAnswersRec[4];
+    Rectangle rightMathAnswersRec[4];
+} Ts_Layout;
+
+typedef struct _Player
+{
+    int correctPoints;
+    int incorrectPoints;
+    float playerTotalTime;
+    float idleTime;
+    float previousIdleTime;
+    float safeTime;
+} Ts_Player;
+
+typedef struct _GameState
+{
+    // Points for player to win or lose
+    int maxCorrectPoints;
+    int maxIncorrectPoints;
+
+    Ts_Layout layoutConfig;
+
     Ts_Helper helperConfig;
 
-    // Task Clock
+    // Task Chance and Clock
+    int chanceLeft;
+    int chanceCenter;
+    int chanceRight;
     float interval;
     float currentTime;
 
@@ -93,29 +112,19 @@ typedef struct _GameState
     // Jumpscare
     Ts_Jumpscare JumpscareConfig;
 
-    Rectangle leftMathAnswersRec[4];
-    Rectangle centerMathAnswersRec[4];
-    Rectangle rightMathAnswersRec[4];
-
-    // Won or Lost
-    int correctPoints;
-    int incorrectPoints;
-
-    // idle time
-    float idleTime;
-    float previousIdleTime;
-    float safeTime;
-
     // Monologue length
     float monoLen;
+
+    Ts_Player player;
 
     // Blink effect
     Ts_BlinkEffect blinkState;
 
 } Ts_GameState;
 
-// ----------------- Prototyps -----------------
-Ts_GameState GameState_config(const Ts_resources *res);
+// -------------------------- Prototyps --------------------------
+Ts_GameState GameStateConfig(const Ts_resources *res);
+Ts_GameState ResourcesLayout(Ts_GameState *state, const Ts_resources *res);
 
 // -------------------------- Start Section --------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
@@ -155,6 +164,9 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state);
 
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state);
 void DrawLostScreen(const Ts_resources *res, Ts_GameState *state);
+
+// -------------------------- Save Game Results --------------------------
+void SaveGameResults(Ts_GameState *state, int playerWon);
 
 // -------------------------- JumpScare --------------------------
 void TriggerJumpscare(Ts_GameState *state);
