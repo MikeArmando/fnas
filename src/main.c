@@ -5,7 +5,7 @@
 
 int main()
 {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE);
 	SetTargetFPS(60);
 	InitWindow(1250, 750, "Five Nigths At School");
 	SearchAndSetResourceDir("resources");
@@ -14,11 +14,13 @@ int main()
 	// ----------------- Load Resources And State -----------------
 	resourcesLoad();
 	const Ts_resources *res = resourcesGet();
-	Ts_GameState gameState = GameStateConfig(res);
+
+	Ts_GameState state;
+	GameStateConfig(res, &state);
 
 	// ----------------- Inicialize Music -----------------
-	PlayMusicStream(res->intro);
-	PlayMusicStream(res->background);
+	PlayMusicStream(res->music.intro);
+	PlayMusicStream(res->music.background);
 
 	// ----------------- Inicialize State -----------------
 	ChangeGameState(LogicStartScreen, DrawStartScreen);
@@ -26,13 +28,18 @@ int main()
 	// ----------------- Game Loop -----------------
 	while (!WindowShouldClose())
 	{
-		UpdateMusicStream(res->monoV1);
+		if (IsWindowResized())
+		{
+			ResourcesLayout(res, &state);
+		}
+
+		UpdateMusicStream(res->music.monoV1);
 
 		// ----------------- Logic Section -----------------
 		GameLogicFunction currentLogic = GetCurrentLogic();
 		if (currentLogic)
 		{
-			currentLogic(res, &gameState);
+			currentLogic(res, &state);
 		}
 
 		if (currentLogic != LogicStartScreen)
@@ -41,24 +48,25 @@ int main()
 			{
 				if (currentLogic != LogicWonScreen)
 				{
-					UpdateMusicStream(res->background);
+					if (currentLogic != LogicTutorial)
+					{
+						UpdateMusicStream(res->music.background);
 
-					// Start task
-					StartTimerTask(res, &gameState);
+						playerIdleTimer(res, &state);
 
-					// Idle Timer
-					playerIdleTimer(res, &gameState);
+						StartTimerTask(res, &state);
+					}
 				}
 			}
 		}
 
 		// Monologue
-		float monoTimePlayed = GetMusicTimePlayed(res->monoV1);
-		if (gameState.monoLen > 0.001f)
+		float monoTimePlayed = GetMusicTimePlayed(res->music.monoV1);
+		if (state.monoLen > 0.001f)
 		{
-			if (monoTimePlayed + 0.05f >= gameState.monoLen)
+			if (monoTimePlayed + 0.05f >= state.monoLen)
 			{
-				StopMusicStream(res->monoV1);
+				StopMusicStream(res->music.monoV1);
 			}
 		}
 
@@ -69,7 +77,7 @@ int main()
 		GameDrawFunction currentDraw = GetCurrentDraw();
 		if (currentDraw)
 		{
-			currentDraw(res, &gameState);
+			currentDraw(res, &state);
 			DrawBlink();
 		}
 		EndDrawing();

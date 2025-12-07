@@ -4,127 +4,236 @@
 
 static GameLogicFunction currentLogic = 0;
 static GameDrawFunction currentDraw = 0;
-static Ts_BlinkEffect sysBlink = {0};
+static Ts_BlinkEffect BlinkConfig = {0};
 
-Ts_GameState GameStateConfig(const Ts_resources *res)
+void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
-    Ts_GameState state = {0};
+    // ------------------ TASK INITIAL SETUP ------------------
+    state->taskConfig.maxCorrectPoints = 15;
+    state->taskConfig.maxIncorrectPoints = 5;
 
-    state.maxCorrectPoints = 15;
-    state.maxIncorrectPoints = 5;
+    state->taskConfig.chanceLeft = 30;
+    state->taskConfig.chanceCenter = 50;
+    state->taskConfig.chanceRight = 20;
 
-    // Task Chances
-    state.chanceLeft = 30;
-    state.chanceCenter = 50;
-    state.chanceRight = 20;
+    state->taskConfig.interval = 8.0f;
+    state->taskConfig.currentTime = 0.0f;
 
-    // Task Timer
-    state.interval = 8.0f;
-    state.currentTime = 0.0f;
+    // ------------------ TUTORIAL SETUP ------------------
+    state->tutorialConfig.currentPageIndex = 0;
+    state->tutorialConfig.maxPages = 6;
 
-    // initialize jumpScare config
-    state.JumpscareConfig.jumpscareTimer = 0.0f;
-    state.JumpscareConfig.jumpscareAudioPlayed = 0;
+    // ------------------ JUMPSCARE INITIAL SETUP ------------------
+    state->JumpscareConfig.jumpscareTimer = 0.0f;
+    state->JumpscareConfig.jumpscareAudioPlayed = 0;
 
-    // Monologue length
-    state.monoLen = GetMusicTimeLength(res->monoV1);
+    // ------------------ MONOLOGUE INITIAL SETUP ------------------
+    state->monoLen = GetMusicTimeLength(res->music.monoV1);
 
-    ResourcesLayout(&state, res);
-    return state;
+    ResourcesLayout(res, state);
 }
 
-Ts_GameState ResourcesLayout(Ts_GameState *state, const Ts_resources *res)
+void ResourcesLayout(const Ts_resources *res, Ts_GameState *state)
 {
-    // ------------------ BACKGROUND ------------------
-    float sx = (float)GetScreenWidth() / (float)res->classroomWindow.width;
-    float sy = (float)GetScreenHeight() / (float)res->classroomWindow.height;
-    state->layoutConfig.scaleFit = fminf(sx, sy);
+    Ts_Layout *layout = &state->layoutConfig;
 
-    state->layoutConfig.backgroundPosFit = (Vector2){(GetScreenWidth() - res->classroomWindow.width * state->layoutConfig.scaleFit) / 2.0f, (GetScreenHeight() - res->classroomWindow.height * state->layoutConfig.scaleFit) / 2.0f};
+    // ------------------ BACKGROUND SCALE ------------------
+    float baseWidth = 1250.0f;
+    float baseHeight = 750.0f;
+
+    float scaleX = (float)GetScreenWidth() / baseWidth;
+    float scaleY = (float)GetScreenHeight() / baseHeight;
+    float scale = fminf(scaleX, scaleY);
+
+    state->layoutConfig.scaleFit = scale;
+
+    // OFFSET FOR BACKGROUND IMAGE CENTER
+    float offsetX = (GetScreenWidth() - (baseWidth * scale)) * 0.5f;
+    float offsetY = (GetScreenHeight() - (baseHeight * scale)) * 0.5f;
+
+    float imgScaleFactor = baseWidth / (float)res->texture.classroom.width;
+
+    layout->scaleFit = scale * imgScaleFactor;
+
+    layout->positionAbsolute = (Vector2){offsetX, offsetY};
+
+    // SCALE FOR OBJECTS
+    layout->scaleUI = scale;
+    layout->offsetX = offsetX;
+    layout->offsetY = offsetY;
 
     // ------------------ OBJECTS ------------------
-    state->helperConfig.tutorialWindowPos = (Vector2){300, 200};
-
-    // Objects Config
+    // Object Size
     float arrowSize = 60.0f;
     float returnArrowSize = 90.0f;
     float helperSize = 90.0f;
+    float helperWindowSize = 60.0f;
+    float tutorialBtnSize = 18.0f;
 
-    // Arrow Scale
-    state->layoutConfig.scaleArrow = arrowSize / (float)res->centerArrow.width;
-    state->layoutConfig.scaleReturnArrow = returnArrowSize / (float)res->centerArrow.width;
+    // Object Position
+    float tutorialBtnX = 1070.0f;
+    float tutorialBtnY = 40.0f;
+    const char *tutorialBtnText = "TUTORIAL";
 
-    // Arrow Position
-    state->layoutConfig.centerArrowPos = (Vector2){588, 500};
-    state->layoutConfig.leftArrowPos = (Vector2){122, 500};
-    state->layoutConfig.rightArrowPos = (Vector2){1050, 500};
-    state->layoutConfig.returnArrowPos = (Vector2){588, 640};
-    state->layoutConfig.RightTaskReturnArrowPos = (Vector2){200, 640};
+    // Object Scale
+    layout->scaleArrow = (arrowSize / (float)res->texture.centerArrow.width) * scale;
+    layout->scaleReturnArrow = (returnArrowSize / (float)res->texture.centerArrow.width) * scale;
+    state->helperConfig.scaleHelper = (helperSize / (float)res->texture.helper.width) * scale;
+    state->helperConfig.scaleHelperWindow = (helperWindowSize / (float)res->texture.helper.width) * scale;
+    state->tutorialConfig.tutorialBtnFontSize = (int)(tutorialBtnSize * scale);
 
-    // Snail
-    state->helperConfig.scaleHelper = helperSize / (float)res->helper.width;
-    state->helperConfig.helperPos = (Vector2){50, 660};
+    // Object Positions
+    layout->centerArrowPos.x = offsetX + (588.0f * scale);
+    layout->centerArrowPos.y = offsetY + (500.0f * scale);
 
-    // Flashlight
-    state->layoutConfig.flashlightRec = (Rectangle){532, 640, 160, 160};
+    layout->leftArrowPos.x = offsetX + (122.0f * scale);
+    layout->leftArrowPos.y = offsetY + (500.0f * scale);
+
+    layout->rightArrowPos.x = offsetX + (1050.0f * scale);
+    layout->rightArrowPos.y = offsetY + (500.0f * scale);
+
+    layout->returnArrowPos.x = offsetX + (588.0f * scale);
+    layout->returnArrowPos.y = offsetY + (640.0f * scale);
+
+    layout->RightTaskReturnArrowPos.x = offsetX + (200.0f * scale);
+    layout->RightTaskReturnArrowPos.y = offsetY + (640.0f * scale);
+
+    state->helperConfig.helperPos.x = offsetX + (50.0f * scale);
+    state->helperConfig.helperPos.y = offsetY + (660.0f * scale);
+
+    state->helperConfig.tutorialWindowPos.x = offsetX + (300.0f * scale);
+    state->helperConfig.tutorialWindowPos.y = offsetY + (200.0f * scale);
+
+    state->tutorialConfig.tutorialBtnPos.x = offsetX + (tutorialBtnX * scale);
+    state->tutorialConfig.tutorialBtnPos.y = offsetY + (tutorialBtnY * scale);
+
+    int textWidth = MeasureText(tutorialBtnText, state->tutorialConfig.tutorialBtnFontSize);
 
     // ------------------ COLISION OBJECTS POSITIONS ------------------
-    state->layoutConfig.centerArrowRec = (Rectangle){state->layoutConfig.centerArrowPos.x, state->layoutConfig.centerArrowPos.y, res->centerArrow.width * state->layoutConfig.scaleArrow, res->centerArrow.height * state->layoutConfig.scaleArrow};
-    state->layoutConfig.leftArrowRec = (Rectangle){state->layoutConfig.leftArrowPos.x, state->layoutConfig.leftArrowPos.y, res->leftArrow.width * state->layoutConfig.scaleArrow, res->leftArrow.height * state->layoutConfig.scaleArrow};
-    state->layoutConfig.rightArrowRec = (Rectangle){state->layoutConfig.rightArrowPos.x, state->layoutConfig.rightArrowPos.y, res->rightArrow.width * state->layoutConfig.scaleArrow, res->rightArrow.height * state->layoutConfig.scaleArrow};
-    state->layoutConfig.returnArrowRec = (Rectangle){state->layoutConfig.returnArrowPos.x, state->layoutConfig.returnArrowPos.y, res->centerArrow.width * state->layoutConfig.scaleArrow, res->centerArrow.height * state->layoutConfig.scaleArrow};
-    state->layoutConfig.RightTaskReturnArrowRec = (Rectangle){state->layoutConfig.RightTaskReturnArrowPos.x, state->layoutConfig.RightTaskReturnArrowPos.y, res->centerArrow.width * state->layoutConfig.scaleArrow, res->centerArrow.height * state->layoutConfig.scaleArrow};
-    state->helperConfig.helperRec = (Rectangle){state->helperConfig.helperPos.x, state->helperConfig.helperPos.y, res->helper.width * state->helperConfig.scaleHelper, res->helper.height * state->helperConfig.scaleHelper};
+    layout->centerArrowRec = (Rectangle){
+        layout->centerArrowPos.x,
+        layout->centerArrowPos.y,
+        res->texture.centerArrow.width * layout->scaleArrow,
+        res->texture.centerArrow.height * layout->scaleArrow};
 
-    // ------------------ MATH OP POSITION LEFT SIDE ------------------
+    layout->leftArrowRec = (Rectangle){
+        layout->leftArrowPos.x,
+        layout->leftArrowPos.y,
+        res->texture.centerArrow.width * layout->scaleArrow,
+        res->texture.centerArrow.height * layout->scaleArrow};
+
+    layout->rightArrowRec = (Rectangle){
+        layout->rightArrowPos.x,
+        layout->rightArrowPos.y,
+        res->texture.centerArrow.width * layout->scaleArrow,
+        res->texture.centerArrow.height * layout->scaleArrow};
+
+    layout->returnArrowRec = (Rectangle){
+        layout->returnArrowPos.x,
+        layout->returnArrowPos.y,
+        res->texture.centerArrow.width * layout->scaleArrow,
+        res->texture.centerArrow.height * layout->scaleArrow};
+
+    layout->RightTaskReturnArrowRec = (Rectangle){
+        state->layoutConfig.RightTaskReturnArrowPos.x,
+        state->layoutConfig.RightTaskReturnArrowPos.y,
+        res->texture.centerArrow.width * layout->scaleArrow,
+        res->texture.centerArrow.height * layout->scaleArrow};
+
+    state->helperConfig.helperRec = (Rectangle){
+        state->helperConfig.helperPos.x,
+        state->helperConfig.helperPos.y,
+        res->texture.helper.width * state->helperConfig.scaleHelper,
+        res->texture.helper.height * state->helperConfig.scaleHelper};
+
+    layout->flashlightRec = (Rectangle){
+        offsetX + (532.0f * scale),
+        offsetY + (640.0f * scale),
+        160.0f * scale,
+        160.0f * scale};
+
+    state->tutorialConfig.tutorialBtnRec = (Rectangle){
+        state->tutorialConfig.tutorialBtnPos.x,
+        state->tutorialConfig.tutorialBtnPos.y,
+        (float)textWidth,
+        (float)state->tutorialConfig.tutorialBtnFontSize};
+
+    state->tutorialConfig.nextBtnRec = (Rectangle){
+        offsetX + (45.0f * scale),
+        offsetY + (280.0f * scale),
+        147.0f * scale,
+        147.0f * scale};
+
+    // ------------------ MATH OP WINDOW POSITION BOOK ------------------
     float columnWidth = 150;
     float columnHeight = 60;
-    float columnPosX = 920;
-    float columnPosY = 390;
-    float gapY = 76.0f;
+    float columnPosX = 1010;
+    float columnPosY = 440;
+    float gapY = 62.0f;
 
     for (int i = 0; i < 4; i++)
     {
-        state->layoutConfig.leftMathAnswersRec[i] = (Rectangle){
-            columnPosX,
-            columnPosY + (i * gapY),
-            columnWidth,
-            columnHeight};
+        layout->bookMathAnswersRec[i] = (Rectangle){
+            offsetX + (columnPosX * scale),
+            offsetY + ((columnPosY + (i * gapY)) * scale),
+            columnWidth * scale,
+            columnHeight * scale};
     }
 
-    // ------------------ MATH OP POSITION CENTER SIDE ------------------
+    // ------------------ MATH OP WINDOW POSITION CHALK BOARD ------------------
     float centerColumnWidth = 200.0f;
     float centerColumnHeight = 80.0f;
     float centerColumnPosX = 800.0f;
-    float centerColumnPosY = 150.0f;
+    float centerColumnPosY = 151.0f;
     float centerSeparation = 15.0f;
-
     float centerGapY = centerColumnHeight + centerSeparation;
 
     for (int i = 0; i < 4; i++)
     {
-        state->layoutConfig.centerMathAnswersRec[i] = (Rectangle){
-            centerColumnPosX,
-            centerColumnPosY + (i * centerGapY), // Posición Y = Inicio + (índice * salto total)
-            centerColumnWidth,
-            centerColumnHeight};
+        layout->chalkboardMathAnswersRec[i] = (Rectangle){
+            offsetX + (centerColumnPosX * scale),
+            offsetY + ((centerColumnPosY + (i * centerGapY)) * scale),
+            centerColumnWidth * scale,
+            centerColumnHeight * scale};
     }
 
-    // ------------------ MATH OP POSITION RIGHT SIDE ------------------
-    float rightcolumnWidth = 150;
-    float rightcolumnHeight = 60;
-    float rightcolumnPosX = 1007;
-    float rightcolumnPosY = 440;
-    float rightgapY = 62.0f;
+    // ------------------ MATH WINDOW VALUES WITH SCALE ------------------
+    // Book section
+    layout->bookFontSizeQuestion = (int)(45.0f * scale);
+    layout->bookFontSizeAnswer = (int)(40.0f * scale);
 
-    for (int i = 0; i < 4; i++)
-    {
-        state->layoutConfig.rightMathAnswersRec[i] = (Rectangle){
-            rightcolumnPosX,
-            rightcolumnPosY + (i * rightgapY),
-            rightcolumnWidth,
-            rightcolumnHeight};
-    }
+    layout->MathOpLine1Pos = (Vector2){
+        offsetX + (950.0f * scale),
+        offsetY + (470.0f * scale)};
+
+    layout->MathOpLine2Pos = (Vector2){
+        offsetX + (950.0f * scale),
+        offsetY + ((470.0f + 50.0f) * scale)};
+
+    // Chalkboard section
+    layout->chalkboardFontSizeQuestion = (int)(70.0f * scale);
+    layout->chalkboardFontSizeAnswer = (int)(60.0f * scale);
+
+    layout->chalkboardMathQuestionPos = (Vector2){
+        offsetX + (250.0f * scale),
+        offsetY + (250.0f * scale)};
+    ;
+
+    // ------------------ START/LOST TEXT VALUES WITH SCALE ------------------
+    layout->startTitlePos = (Vector2){
+        offsetX + (100.0f * scale),
+        offsetY + (200.0f * scale)};
+
+    layout->instructionY = offsetY + (270.0f * scale);
+    layout->creditsTitleY = offsetY + (650.0f * scale);
+    layout->credit1Y = offsetY + (680.0f * scale);
+    layout->credit2Y = offsetY + (700.0f * scale);
+    layout->gameResults = offsetY + (700.0f * scale);
+
+    layout->fontSizeTitle = (int)(60.0f * scale);
+    layout->fontSizeInstruction = (int)(20.0f * scale);
+    layout->fontSizeResults = (int)(20.0f * scale);
+    layout->fontSizeCredits = (int)(15.0f * scale);
 }
 
 // --------------------------------------- CHANGE GAME STATE ---------------------------------------
@@ -147,13 +256,15 @@ GameDrawFunction GetCurrentDraw()
 // --------------------------------------- START SECTION ---------------------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
 {
-    UpdateMusicStream(res->intro);
+    Vector2 mousePos = GetMousePosition();
+
+    UpdateMusicStream(res->music.intro);
 
     if (IsKeyPressed(KEY_ENTER))
     {
-        StopMusicStream(res->intro);
-        PlayMusicStream(res->monoV1);
-        PlayMusicStream(res->background);
+        StopMusicStream(res->music.intro);
+        PlayMusicStream(res->music.monoV1);
+        PlayMusicStream(res->music.background);
 
         state->player.playerTotalTime = 0;
         state->player.incorrectPoints = 0;
@@ -167,19 +278,75 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
         TriggerBlink(0.6f, BLACK, 0.0f);
         ChangeGameState(LogicClassroom, DrawClassroom);
     }
+
+    if (CheckCollisionPointRec(mousePos, state->tutorialConfig.tutorialBtnRec))
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            ChangeGameState(LogicTutorial, DrawTutorial);
+        }
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
 }
 
 void DrawStartScreen(const Ts_resources *res, Ts_GameState *state)
 {
+    Ts_Layout *layout = &state->layoutConfig;
+
     ClearBackground(BLACK);
-    DrawText("Five Nigths At School", 100, 200, 60, WHITE);
-    DrawText("Presiona [ENTER] para comenzar . . .", 100, 270, 20, WHITE);
-    DrawText("PRESENTADO POR:", 100, 650, 15, WHITE);
-    DrawText("Perez Aguirre Mextli Citlali - Diseño y Arte", 100, 680, 15, WHITE);
-    DrawText("Montano Valencia Mike Armando - Desarrollo de Software", 100, 700, 15, WHITE);
+    DrawText("Five Nigths At School", layout->startTitlePos.x, layout->startTitlePos.y, layout->fontSizeTitle, WHITE);
+    DrawText("Presiona [ENTER] para comenzar . . .", layout->startTitlePos.x, layout->instructionY, layout->fontSizeInstruction, WHITE);
+    DrawText("PRESENTADO POR:", layout->startTitlePos.x, layout->creditsTitleY, layout->fontSizeCredits, WHITE);
+    DrawText("Perez Aguirre Mextli Citlali - Diseño y Arte", layout->startTitlePos.x, layout->credit1Y, layout->fontSizeCredits, WHITE);
+    DrawText("Montano Valencia Mike Armando - Desarrollo de Software", layout->startTitlePos.x, layout->credit2Y, layout->fontSizeCredits, WHITE);
+    DrawText("TUTORIAL", (int)state->tutorialConfig.tutorialBtnPos.x, (int)state->tutorialConfig.tutorialBtnPos.y, state->tutorialConfig.tutorialBtnFontSize, WHITE);
 }
 
-// --------------------------------------- CLASSROOM SECTION ---------------------------------------
+// --------------------------------------- TUTORIAL SECTION ---------------------------------------
+void LogicTutorial(const Ts_resources *res, Ts_GameState *state)
+{
+    Vector2 mousePos = GetMousePosition();
+
+    UpdateMusicStream(res->music.intro);
+
+    if (CheckCollisionPointRec(mousePos, state->tutorialConfig.nextBtnRec))
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            PlaySound(res->sound.arrowClick);
+            if (state->tutorialConfig.currentPageIndex < state->tutorialConfig.maxPages - 1)
+            {
+                state->tutorialConfig.currentPageIndex++;
+            }
+            else
+            {
+                state->tutorialConfig.currentPageIndex = 0;
+                ChangeGameState(LogicStartScreen, DrawStartScreen);
+            }
+        }
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
+void DrawTutorial(const Ts_resources *res, Ts_GameState *state)
+{
+    ClearBackground(BLACK);
+    Texture2D currentPageTexture = res->texture.tutorialPages[state->tutorialConfig.currentPageIndex];
+    DrawTextureEx(currentPageTexture, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+}
+
+// --------------------------------------- CLASSROOM SECTION---------------------------------------
 void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
@@ -188,9 +355,9 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
+            PlaySound(res->sound.arrowClick);
             TriggerBlink(0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicLeftTaskWindow, DrawLeftTaskWindow);
+            ChangeGameState(LogicLeftTask, DrawLeftTask);
             return;
         }
     }
@@ -198,9 +365,9 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
+            PlaySound(res->sound.arrowClick);
             TriggerBlink(0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicCenterTaskWindow, DrawCenterTaskWindow);
+            ChangeGameState(LogicCenterTask, DrawCenterTask);
             return;
         }
     }
@@ -208,51 +375,55 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->doorOpening);
+            PlaySound(res->sound.doorOpening);
             TriggerBlink(0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
+            ChangeGameState(LogicRightTask, DrawRightTask);
             return;
         }
     }
 
     if (CheckCollisionPointRec(mousePos, state->helperConfig.helperRec))
     {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         state->helperConfig.isHelpWindow = 1;
     }
     else
     {
         state->helperConfig.isHelpWindow = 0;
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
 void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->classroomWindow, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->centerArrow, state->layoutConfig.centerArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
-    DrawTextureEx(res->leftArrow, state->layoutConfig.leftArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
-    DrawTextureEx(res->rightArrow, state->layoutConfig.rightArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.classroom, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.centerArrow, state->layoutConfig.centerArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
+    DrawTextureEx(res->texture.leftArrow, state->layoutConfig.leftArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
+    DrawTextureEx(res->texture.rightArrow, state->layoutConfig.rightArrowPos, 0.0f, state->layoutConfig.scaleArrow, WHITE);
+
     if (state->isLeftTaskTrue)
     {
-        DrawTextureEx(res->leftIndicator, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
+        DrawTextureEx(res->texture.leftIndicator, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
     }
     if (state->isCenterTaskTrue)
     {
-        DrawTextureEx(res->centerIndicator, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
+        DrawTextureEx(res->texture.centerIndicator, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
     }
     if (state->helperConfig.isHelpWindow)
     {
-        DrawTextureEx(res->tutorialWindow, state->helperConfig.tutorialWindowPos, 0.0f, 0.5f, WHITE);
+        DrawTextureEx(res->texture.tutorialWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
     }
-    DrawTextureEx(res->helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
+    DrawTextureEx(res->texture.helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
 }
 
 // --------------------------------------- LEFT SECTION ---------------------------------------
-void LogicLeftTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void LogicLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
     if (state->isLeftTaskTrue)
     {
-        PlaySound(res->suspenseSound);
+        PlaySound(res->sound.suspenseSound);
         ChangeGameState(LogicStartLeftTask, DrawStartLeftTask);
         return;
     }
@@ -260,7 +431,7 @@ void LogicLeftTaskWindow(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
+            PlaySound(res->sound.arrowClick);
             TriggerBlink(0.2f, BLACK, 0.0f);
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
@@ -268,10 +439,11 @@ void LogicLeftTaskWindow(const Ts_resources *res, Ts_GameState *state)
     }
 }
 
-void DrawLeftTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void DrawLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->leftTaskWindow, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.leftTaskWindow, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
 void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
@@ -291,7 +463,7 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.leftMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             state->player.idleTime = 0.0f;
 
@@ -301,16 +473,16 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                 state->isLeftTaskTrue = 0;
                 state->player.correctPoints++;
 
-                if (state->player.correctPoints >= state->maxCorrectPoints)
+                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
                 {
-                    PlaySound(res->hasWon);
-                    PlayMusicStream(res->won);
+                    PlaySound(res->sound.hasWon);
+                    PlayMusicStream(res->music.won);
                     TriggerBlink(7.0f, BLACK, 0.0f);
                     SaveGameResults(state, 1);
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
-                PlaySound(res->eatingCookie);
+                PlaySound(res->sound.eatingCookie);
                 TriggerBlink(0.2f, BLACK, 0.0f);
                 ChangeGameState(LogicClassroom, DrawClassroom);
             }
@@ -318,15 +490,15 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
             {
                 state->player.incorrectPoints++;
 
-                if (state->player.incorrectPoints >= state->maxIncorrectPoints)
+                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
                 {
-                    PlayMusicStream(res->ending);
-                    PlaySound(res->girlJumpscare);
+                    PlayMusicStream(res->music.ending);
+                    PlaySound(res->sound.girlJumpscare);
                     TriggerJumpscare(state);
                     return;
                 }
                 TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->incorrect);
+                PlaySound(res->sound.incorrect);
             }
             return;
         }
@@ -335,39 +507,50 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 
 void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->leftTaskTrue, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-
     Ts_MathTaskData *currentTask = &state->leftMathTask;
+    Ts_Layout *layout = &state->layoutConfig;
 
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.leftTaskTrue, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, layout->returnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+
+    // ------------------- DRAW QUESTION -------------------
     char mathNum1[16];
     sprintf(mathNum1, "%d", currentTask->num1);
-    int widthNum1 = MeasureText(mathNum1, 50);
 
     char mathNum2[16];
     sprintf(mathNum2, "%c %d", currentTask->op, currentTask->num2);
-    int widthLine2 = MeasureText(mathNum2, 50);
 
-    DrawText(mathNum1, 820 - widthNum1, 470, 50, BLACK);
-    DrawText(mathNum2, 820 - widthLine2, 470 + 50, 50, BLACK);
+    int widthNum1 = MeasureText(mathNum1, layout->bookFontSizeQuestion);
+    int widthLine2 = MeasureText(mathNum2, layout->bookFontSizeQuestion);
 
+    DrawText(mathNum1,
+             (int)(layout->MathOpLine1Pos.x - widthNum1),
+             (int)layout->MathOpLine1Pos.y,
+             layout->bookFontSizeQuestion, BLACK);
+
+    DrawText(mathNum2,
+             (int)(layout->MathOpLine2Pos.x - widthLine2),
+             (int)layout->MathOpLine2Pos.y,
+             layout->bookFontSizeQuestion, BLACK);
+
+    // ------------------- DRAW ANSWERS -------------------
     for (int i = 0; i < 4; i++)
     {
         char answersOnScreen[10];
         sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
 
-        int textWidth = MeasureText(answersOnScreen, 40);
+        int textWidth = MeasureText(answersOnScreen, layout->bookFontSizeAnswer);
 
-        int answerPosX = (int)(state->layoutConfig.leftMathAnswersRec[i].x + (state->layoutConfig.leftMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(state->layoutConfig.leftMathAnswersRec[i].y + (state->layoutConfig.leftMathAnswersRec[i].height / 2) - (40 / 2));
+        int answerPosX = (int)(layout->bookMathAnswersRec[i].x + (layout->bookMathAnswersRec[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(layout->bookMathAnswersRec[i].y + (layout->bookMathAnswersRec[i].height / 2) - (layout->bookFontSizeAnswer / 2));
 
-        DrawText(answersOnScreen, answerPosX, answerPosY, 40, BLACK);
+        DrawText(answersOnScreen, answerPosX, answerPosY, layout->bookFontSizeAnswer, BLACK);
     }
-
-    DrawTextureEx(res->returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
 // --------------------------------------- CENTER SECTION ---------------------------------------
-void LogicCenterTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void LogicCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
 
@@ -381,7 +564,7 @@ void LogicCenterTaskWindow(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
+            PlaySound(res->sound.arrowClick);
             TriggerBlink(0.2f, BLACK, 0.0f);
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
@@ -389,10 +572,11 @@ void LogicCenterTaskWindow(const Ts_resources *res, Ts_GameState *state)
     }
 }
 
-void DrawCenterTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void DrawCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->centerTaskWindow, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.centerTaskWindow, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
 void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
@@ -412,7 +596,7 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.centerMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.chalkboardMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             state->player.idleTime = 0.0f;
 
@@ -422,16 +606,16 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                 state->isCenterTaskTrue = 0;
                 state->player.correctPoints++;
 
-                if (state->player.correctPoints >= state->maxCorrectPoints)
+                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
                 {
-                    PlaySound(res->hasWon);
-                    PlayMusicStream(res->won);
+                    PlaySound(res->sound.hasWon);
+                    PlayMusicStream(res->music.won);
                     TriggerBlink(7.0f, BLACK, 0.0f);
                     SaveGameResults(state, 1);
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
-                PlaySound(res->answerOnChalkboard);
+                PlaySound(res->sound.answerOnChalkboard);
                 TriggerBlink(0.2f, BLACK, 0.0f);
                 ChangeGameState(LogicClassroom, DrawClassroom);
             }
@@ -439,15 +623,15 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
             {
                 state->player.incorrectPoints++;
 
-                if (state->player.incorrectPoints >= state->maxIncorrectPoints)
+                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
                 {
-                    PlayMusicStream(res->ending);
-                    PlaySound(res->girlJumpscare);
+                    PlayMusicStream(res->music.ending);
+                    PlaySound(res->sound.girlJumpscare);
                     TriggerJumpscare(state);
                     return;
                 }
                 TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->incorrect);
+                PlaySound(res->sound.incorrect);
             }
             return;
         }
@@ -456,40 +640,42 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 
 void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->centerTaskWindow, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->layoutConfig.returnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
-
     Ts_MathTaskData *currentTask = &state->centerMathTask;
+    Ts_Layout *layout = &state->layoutConfig;
 
-    char questionString[16];
-    sprintf(questionString, "%d %c %d %s", currentTask->num1, currentTask->op, currentTask->num2, "= ?");
-    DrawText(questionString, 250, 250, 70, LIGHTGRAY);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.centerTaskWindow, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, layout->returnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+
+    char questionStr[16];
+    sprintf(questionStr, "%d %c %d %s", currentTask->num1, currentTask->op, currentTask->num2, "= ?");
+    DrawText(questionStr, layout->chalkboardMathQuestionPos.x, layout->chalkboardMathQuestionPos.y, layout->chalkboardFontSizeQuestion, LIGHTGRAY);
 
     for (int i = 0; i < 4; i++)
     {
         char answersOnScreen[10];
         sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
 
-        DrawRectangleLinesEx(state->layoutConfig.centerMathAnswersRec[i], 3, LIGHTGRAY);
+        DrawRectangleLinesEx(layout->chalkboardMathAnswersRec[i], 3, LIGHTGRAY);
 
-        int textWidth = MeasureText(answersOnScreen, 60);
+        int textWidth = MeasureText(answersOnScreen, layout->chalkboardFontSizeAnswer);
 
-        int answerPosX = (int)(state->layoutConfig.centerMathAnswersRec[i].x + (state->layoutConfig.centerMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(state->layoutConfig.centerMathAnswersRec[i].y + (state->layoutConfig.centerMathAnswersRec[i].height / 2) - (60 / 2));
+        int answerPosX = (int)(layout->chalkboardMathAnswersRec[i].x + (layout->chalkboardMathAnswersRec[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(layout->chalkboardMathAnswersRec[i].y + (layout->chalkboardMathAnswersRec[i].height / 2) - (layout->chalkboardFontSizeAnswer / 2));
 
-        DrawText(answersOnScreen, answerPosX, answerPosY, 60, LIGHTGRAY);
+        DrawText(answersOnScreen, answerPosX, answerPosY, layout->chalkboardFontSizeAnswer, LIGHTGRAY);
     }
 }
 
 // --------------------------------------- RIGHT SECTION ---------------------------------------
-void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void LogicRightTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.RightTaskReturnArrowRec))
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->doorOpening);
+            PlaySound(res->sound.doorOpening);
             TriggerBlink(0.2f, BLACK, 0.0f);
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
@@ -499,26 +685,27 @@ void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
-            ChangeGameState(LogicRightTaskWindowLight, DrawRightTaskWindowLight);
+            PlaySound(res->sound.arrowClick);
+            ChangeGameState(LogicRightTaskLight, DrawRightTaskLight);
         }
     }
 }
 
-void DrawRightTaskWindow(const Ts_resources *res, Ts_GameState *state)
+void DrawRightTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->rightTaskWindow, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->layoutConfig.RightTaskReturnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.rightTaskWindow, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, state->layoutConfig.RightTaskReturnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
-void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state)
+void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.RightTaskReturnArrowRec))
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->doorOpening);
+            PlaySound(res->sound.doorOpening);
             TriggerBlink(0.2f, BLACK, 0.0f);
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
@@ -528,8 +715,8 @@ void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
-            ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
+            PlaySound(res->sound.arrowClick);
+            ChangeGameState(LogicRightTask, DrawRightTask);
         }
     }
 
@@ -540,10 +727,11 @@ void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state)
     }
 }
 
-void DrawRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state)
+void DrawRightTaskLight(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->rightTaskWindowLights, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-    DrawTextureEx(res->returnArrow, state->layoutConfig.RightTaskReturnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.rightTaskWindowLights, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, state->layoutConfig.RightTaskReturnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
 void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
@@ -555,7 +743,7 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->doorOpening);
+            PlaySound(res->sound.doorOpening);
             TriggerBlink(0.2f, BLACK, 0.0f);
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
@@ -565,14 +753,14 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
     {
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
-            PlaySound(res->arrowClick);
-            ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
+            PlaySound(res->sound.arrowClick);
+            ChangeGameState(LogicRightTask, DrawRightTask);
         }
     }
 
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.rightMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             state->player.idleTime = 0.0f;
 
@@ -582,32 +770,32 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
                 state->isRightTaskTrue = 0;
                 state->player.correctPoints++;
 
-                if (state->player.correctPoints >= state->maxCorrectPoints)
+                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
                 {
-                    PlaySound(res->hasWon);
-                    PlayMusicStream(res->won);
+                    PlaySound(res->sound.hasWon);
+                    PlayMusicStream(res->music.won);
                     TriggerBlink(7.0f, BLACK, 0.0f);
                     SaveGameResults(state, 1);
                     ChangeGameState(LogicWonScreen, DrawWonScreen);
                     return;
                 }
-                PlaySound(res->girlLaugh);
+                PlaySound(res->sound.girlLaugh);
                 TriggerBlink(0.2f, BLACK, 0.0f);
-                ChangeGameState(LogicRightTaskWindow, DrawRightTaskWindow);
+                ChangeGameState(LogicRightTask, DrawRightTask);
             }
             else
             {
                 state->player.incorrectPoints++;
 
-                if (state->player.incorrectPoints >= state->maxIncorrectPoints)
+                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
                 {
-                    PlayMusicStream(res->ending);
-                    PlaySound(res->girlJumpscare);
+                    PlayMusicStream(res->music.ending);
+                    PlaySound(res->sound.girlJumpscare);
                     TriggerJumpscare(state);
                     return;
                 }
                 TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->incorrect);
+                PlaySound(res->sound.incorrect);
             }
             return;
         }
@@ -616,101 +804,115 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
 
 void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state)
 {
-    DrawTextureEx(res->rightTaskTrue, state->layoutConfig.backgroundPosFit, 0.0f, state->layoutConfig.scaleFit, WHITE);
-
     Ts_MathTaskData *currentTask = &state->rightMathTask;
+    Ts_Layout *layout = &state->layoutConfig;
 
+    ClearBackground(BLACK);
+    DrawTextureEx(res->texture.rightTaskTrue, layout->positionAbsolute, 0.0f, layout->scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, layout->RightTaskReturnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+
+    // ------------------- DRAW QUESTION -------------------
     char mathNum1[16];
     sprintf(mathNum1, "%d", currentTask->num1);
-    int widthNum1 = MeasureText(mathNum1, 50);
 
     char mathNum2[16];
     sprintf(mathNum2, "%c %d", currentTask->op, currentTask->num2);
-    int widthLine2 = MeasureText(mathNum2, 50);
 
-    DrawText(mathNum1, 950 - widthNum1, 470, 50, BLACK);
-    DrawText(mathNum2, 950 - widthLine2, 470 + 50, 50, BLACK);
+    int widthNum1 = MeasureText(mathNum1, layout->bookFontSizeQuestion);
+    int widthLine2 = MeasureText(mathNum2, layout->bookFontSizeQuestion);
 
+    DrawText(mathNum1,
+             (int)(layout->MathOpLine1Pos.x - widthNum1),
+             (int)layout->MathOpLine1Pos.y,
+             layout->bookFontSizeQuestion, BLACK);
+
+    DrawText(mathNum2,
+             (int)(layout->MathOpLine2Pos.x - widthLine2),
+             (int)layout->MathOpLine2Pos.y,
+             layout->bookFontSizeQuestion, BLACK);
+
+    // ------------------- DRAW ANSWERS -------------------
     for (int i = 0; i < 4; i++)
     {
         char answersOnScreen[10];
         sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
 
-        int textWidth = MeasureText(answersOnScreen, 35);
+        int textWidth = MeasureText(answersOnScreen, layout->bookFontSizeAnswer);
 
-        int answerPosX = (int)(state->layoutConfig.rightMathAnswersRec[i].x + (state->layoutConfig.rightMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(state->layoutConfig.rightMathAnswersRec[i].y + (state->layoutConfig.rightMathAnswersRec[i].height / 2) - (35 / 2));
+        int answerPosX = (int)(layout->bookMathAnswersRec[i].x + (layout->bookMathAnswersRec[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(layout->bookMathAnswersRec[i].y + (layout->bookMathAnswersRec[i].height / 2) - (layout->bookFontSizeAnswer / 2));
 
-        DrawText(answersOnScreen, answerPosX, answerPosY, 35, BLACK);
+        DrawText(answersOnScreen, answerPosX, answerPosY, layout->bookFontSizeAnswer, BLACK);
     }
-
-    DrawTextureEx(res->returnArrow, state->layoutConfig.RightTaskReturnArrowPos, 0.0f, state->layoutConfig.scaleReturnArrow, WHITE);
 }
 
 // --------------------------------------- WON SECTION ---------------------------------------
 void LogicWonScreen(const Ts_resources *res, Ts_GameState *state)
 {
-    UpdateMusicStream(res->won);
+    UpdateMusicStream(res->music.won);
 
     if (IsKeyPressed(KEY_ENTER))
     {
-        StopMusicStream(res->won);
+        StopMusicStream(res->music.won);
         ChangeGameState(LogicStartScreen, DrawStartScreen);
         return;
     }
 
-    StopMusicStream(res->monoV1);
-    StopMusicStream(res->background);
-    StopSound(res->eatingCookie);
-    StopSound(res->ghostWriting);
-    StopSound(res->girlLaugh);
+    StopMusicStream(res->music.monoV1);
+    StopMusicStream(res->music.background);
+    StopSound(res->sound.eatingCookie);
+    StopSound(res->sound.ghostWriting);
+    StopSound(res->sound.girlLaugh);
 }
 
 void DrawWonScreen(const Ts_resources *res, Ts_GameState *state)
 {
-    ClearBackground(BLACK);
-    DrawText("BUEN TRABAJO!", 100, 200, 60, WHITE);
-    DrawText("Sobreviviste la noche", 100, 265, 20, WHITE);
+    Ts_Layout *layout = &state->layoutConfig;
 
     char resultsText[50];
     sprintf(resultsText, "Tiempo Sobrevivido: %.2f seg", state->player.playerTotalTime);
-    DrawText(resultsText, 100, 700, 20, YELLOW);
+
+    ClearBackground(BLACK);
+    DrawText("BUEN TRABAJO!", layout->startTitlePos.x, layout->startTitlePos.y, layout->fontSizeTitle, WHITE);
+    DrawText("Sobreviviste la noche", layout->startTitlePos.x, state->layoutConfig.instructionY, layout->fontSizeInstruction, WHITE);
+    DrawText(resultsText, layout->startTitlePos.x, layout->gameResults, layout->fontSizeResults, YELLOW);
 }
 
 // --------------------------------------- LOST SECTION ---------------------------------------
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state)
 {
-    UpdateMusicStream(res->ending);
+    UpdateMusicStream(res->music.ending);
 
     if (IsKeyPressed(KEY_ENTER))
     {
-        StopMusicStream(res->ending);
-        PlayMusicStream(res->intro);
+        StopMusicStream(res->music.ending);
+        PlayMusicStream(res->music.intro);
         TriggerBlink(2.2f, BLACK, 0.0f);
         ChangeGameState(LogicStartScreen, DrawStartScreen);
         return;
     }
 
-    StopMusicStream(res->monoV1);
-    StopMusicStream(res->background);
-    StopSound(res->eatingCookie);
-    StopSound(res->ghostWriting);
-    StopSound(res->girlLaugh);
+    StopMusicStream(res->music.monoV1);
+    StopMusicStream(res->music.background);
+    StopSound(res->sound.eatingCookie);
+    StopSound(res->sound.ghostWriting);
+    StopSound(res->sound.girlLaugh);
 }
 
 void DrawLostScreen(const Ts_resources *res, Ts_GameState *state)
 {
-    ClearBackground(BLACK);
-    DrawText("JUEGO TERMINADO", 100, 200, 60, WHITE);
-    DrawText("Causa de muerte: Fue difícil saber cuánto es 1 + 1", 100, 265, 20, WHITE);
+    Ts_Layout *layout = &state->layoutConfig;
 
     char resultsText[50];
     sprintf(resultsText, "Tiempo Sobrevivido: %.2f seg", state->player.playerTotalTime);
 
-    DrawText(resultsText, 100, 700, 20, YELLOW);
+    ClearBackground(BLACK);
+    DrawText("JUEGO TERMINADO", layout->startTitlePos.x, layout->startTitlePos.y, layout->fontSizeTitle, WHITE);
+    DrawText("Causa de muerte: Entraron las entidades al salón", layout->startTitlePos.x, state->layoutConfig.instructionY, layout->fontSizeInstruction, WHITE);
+    DrawText(resultsText, layout->startTitlePos.x, layout->gameResults, layout->fontSizeResults, YELLOW);
 }
 
-// --------------------------- SAVE GAME RESULTS ---------------------------
+// --------------------------------------- SAVE GAME RESULTS ---------------------------------------
 void SaveGameResults(Ts_GameState *state, int playerWon)
 {
     FILE *textFile;
@@ -752,7 +954,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
     {
         state->player.safeTime = 0.0f;
         state->player.idleTime = 0.0f;
-        PlaySound(res->girlJumpscare);
+        PlaySound(res->sound.girlJumpscare);
         TriggerJumpscare(state);
     }
 }
@@ -760,18 +962,18 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
 // --------------------------------------- ASSIGN TASK SECTION ---------------------------------------
 void StartTimerTask(const Ts_resources *res, Ts_GameState *state)
 {
-    if (state->player.safeTime < 55.0f)
+    if (state->player.safeTime < 52.0f)
     {
         return;
     }
 
     float deltatime = GetFrameTime();
-    state->currentTime += deltatime;
+    state->taskConfig.currentTime += deltatime;
 
-    if (state->currentTime >= state->interval)
+    if (state->taskConfig.currentTime >= state->taskConfig.interval)
     {
-        state->currentTime -= state->interval;
-        state->interval = (float)GetRandomValue(5, 10);
+        state->taskConfig.currentTime -= state->taskConfig.interval;
+        state->taskConfig.interval = (float)GetRandomValue(5, 10);
         AssignTask(res, state);
     }
 }
@@ -780,8 +982,8 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
 {
     int roll = GetRandomValue(0, 99);
 
-    int limitLeft = state->chanceLeft;
-    int limitCenter = state->chanceLeft + state->chanceCenter;
+    int limitLeft = state->taskConfig.chanceLeft;
+    int limitCenter = state->taskConfig.chanceLeft + state->taskConfig.chanceCenter;
 
     if (roll < limitLeft)
     {
@@ -802,7 +1004,7 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
         }
         Ts_MathTaskData *currentTask = &state->centerMathTask;
         centerMathTaskGenerator(currentTask);
-        PlaySound(res->ghostWriting);
+        PlaySound(res->sound.ghostWriting);
         state->isCenterTaskTrue = 1;
         return;
     }
@@ -818,8 +1020,8 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
 
 void leftMathTaskGenerator(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(10, 200);
-    task->num2 = GetRandomValue(10, 200);
+    task->num1 = GetRandomValue(0, 100);
+    task->num2 = GetRandomValue(1, 100);
     task->op = '+';
     task->correctAnswer = task->num1 + task->num2;
     task->isActive = true;
@@ -890,56 +1092,53 @@ void assignWrongChoices(Ts_MathTaskData *task)
     }
 }
 
-// --------------------------- BLINK EFFECT ---------------------------
+// --------------------------------------- BLINK EFFECT ---------------------------------------
 void TriggerBlink(float duration, Color color, float frequency)
 {
-    sysBlink.active = true;
-    sysBlink.duration = duration;
-    sysBlink.currentTimer = duration;
-    sysBlink.color = color;
-    sysBlink.frequency = frequency;
+    BlinkConfig.active = true;
+    BlinkConfig.duration = duration;
+    BlinkConfig.currentTimer = duration;
+    BlinkConfig.color = color;
+    BlinkConfig.frequency = frequency;
 }
 
 void UpdateBlink(void)
 {
-    if (sysBlink.active)
+    if (BlinkConfig.active)
     {
-        sysBlink.currentTimer -= GetFrameTime();
+        BlinkConfig.currentTimer -= GetFrameTime();
 
-        if (sysBlink.currentTimer <= 0)
+        if (BlinkConfig.currentTimer <= 0)
         {
-            sysBlink.active = false;
-            sysBlink.currentTimer = 0;
+            BlinkConfig.active = false;
+            BlinkConfig.currentTimer = 0;
         }
     }
 }
 
 void DrawBlink(void)
 {
-    if (sysBlink.active)
+    if (BlinkConfig.active)
     {
-        if (sysBlink.frequency <= 0.0f)
+        if (BlinkConfig.frequency <= 0.0f)
         {
-            // A. LÓGICA DE DESVANECIMIENTO (FADE OUT)
-            // Calculamos el alpha de 1.0 a 0.0
-            float alpha = sysBlink.currentTimer / sysBlink.duration;
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(sysBlink.color, alpha));
+            float alpha = BlinkConfig.currentTimer / BlinkConfig.duration;
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BlinkConfig.color, alpha));
             return;
         }
 
-        float timeElapsed = sysBlink.duration - sysBlink.currentTimer;
-        float cycleInterval = 1.0f / sysBlink.frequency;
+        float timeElapsed = BlinkConfig.duration - BlinkConfig.currentTimer;
+        float cycleInterval = 1.0f / BlinkConfig.frequency;
         float cycleTime = fmodf(timeElapsed, cycleInterval);
 
         if (cycleTime < (cycleInterval / 2.0f))
         {
-            // Mantenemos el alpha constante al 50%
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(sysBlink.color, 0.5f));
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BlinkConfig.color, 0.5f));
         }
     }
 }
 
-// --------------------------- JUMPSCARE EFFECT ---------------------------
+// --------------------------------------- JUMPSCARE EFFECT ---------------------------------------
 void TriggerJumpscare(Ts_GameState *state)
 {
     state->JumpscareConfig.lastDrawFunction = GetCurrentDraw();
@@ -957,11 +1156,11 @@ void LogicJumpscare(const Ts_resources *res, Ts_GameState *state)
 
     if (!state->JumpscareConfig.jumpscareAudioPlayed)
     {
-        StopMusicStream(res->monoV1);
-        StopMusicStream(res->background);
-        StopSound(res->eatingCookie);
-        StopSound(res->ghostWriting);
-        StopSound(res->girlLaugh);
+        StopMusicStream(res->music.monoV1);
+        StopMusicStream(res->music.background);
+        StopSound(res->sound.eatingCookie);
+        StopSound(res->sound.ghostWriting);
+        StopSound(res->sound.girlLaugh);
 
         state->JumpscareConfig.jumpscareAudioPlayed = 1;
     }
@@ -969,7 +1168,7 @@ void LogicJumpscare(const Ts_resources *res, Ts_GameState *state)
     if (state->JumpscareConfig.jumpscareTimer >= 1.0f)
     {
         TriggerBlink(6.0f, BLACK, 0.0f);
-        PlayMusicStream(res->ending);
+        PlayMusicStream(res->music.ending);
         SaveGameResults(state, 0);
         ChangeGameState(LogicLostScreen, DrawLostScreen);
     }

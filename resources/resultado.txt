@@ -1,0 +1,340 @@
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 181.36 segundos
+Respuestas correctas: 6
+Respuestas incorrectas: 3
+
+Estado: GANASTE 
+Tiempo: 180.60 segundos
+Respuestas correctas: 15
+Respuestas incorrectas: 3
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 93.66 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 93.21 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 90.31 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 90.86 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 133.24 segundos
+Respuestas correctas: 4
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 167.10 segundos
+Respuestas correctas: 2
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 139.18 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 140.04 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 3
+
+Estado: PERDISTE 
+Tiempo: 130.68 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 134.63 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 129.21 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 137.02 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.02 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 97.12 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 82.60 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 176.12 segundos
+Respuestas correctas: 5
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.02 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 213.60 segundos
+Respuestas correctas: 9
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 123.41 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 133.21 segundos
+Respuestas correctas: 2
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 109.46 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 140.18 segundos
+Respuestas correctas: 2
+Respuestas incorrectas: 3
+
+Estado: PERDISTE 
+Tiempo: 90.64 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 157.65 segundos
+Respuestas correctas: 2
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 188.29 segundos
+Respuestas correctas: 3
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 158.80 segundos
+Respuestas correctas: 7
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 159.10 segundos
+Respuestas correctas: 3
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 104.48 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: GANASTE 
+Tiempo: 234.66 segundos
+Respuestas correctas: 15
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 70.73 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 143.49 segundos
+Respuestas correctas: 3
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 229.48 segundos
+Respuestas correctas: 9
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 175.92 segundos
+Respuestas correctas: 3
+Respuestas incorrectas: 2
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 182.50 segundos
+Respuestas correctas: 6
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 129.99 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 64.39 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 125.28 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.02 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: GANASTE 
+Tiempo: 4.04 segundos
+Respuestas correctas: 41615361
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 40108032
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 231.01 segundos
+Respuestas correctas: 40108032
+Respuestas incorrectas: 0
+

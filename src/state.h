@@ -10,6 +10,7 @@ typedef void (*GameDrawFunction)(const Ts_resources *res, Ts_GameState *state);
 typedef struct _Helper
 {
     float scaleHelper;
+    float scaleHelperWindow;
     Vector2 helperPos;
     Rectangle helperRec;
     Vector2 tutorialWindowPos;
@@ -47,10 +48,14 @@ typedef struct _Jumpscare
 typedef struct _Layout
 {
     float scaleFit;
-    Vector2 backgroundPosFit;
+    Vector2 positionAbsolute;
 
     float scaleArrow;
     float scaleReturnArrow;
+
+    float scaleUI;
+    float offsetX;
+    float offsetY;
 
     Vector2 centerArrowPos;
     Vector2 leftArrowPos;
@@ -67,10 +72,51 @@ typedef struct _Layout
 
     Rectangle flashlightRec;
 
-    Rectangle leftMathAnswersRec[4];
-    Rectangle centerMathAnswersRec[4];
-    Rectangle rightMathAnswersRec[4];
+    // Math Window
+    Rectangle bookMathAnswersRec[4];
+    Rectangle chalkboardMathAnswersRec[4];
+
+    // Book Math Section
+    int bookFontSizeQuestion;
+    int bookFontSizeAnswer;
+    Vector2 MathOpLine1Pos;
+    Vector2 MathOpLine2Pos;
+
+    // Book Math Section
+    int chalkboardFontSizeQuestion;
+    int chalkboardFontSizeAnswer;
+    Vector2 chalkboardMathQuestionPos;
+
+    // Won/Lost Screen
+    Vector2 startTitlePos;
+    float instructionY;
+    float creditsTitleY;
+    float credit1Y;
+    float credit2Y;
+    float gameResults;
+
+    float fontSizeTitle;
+    int fontSizeInstruction;
+    int fontSizeResults;
+    int fontSizeCredits;
 } Ts_Layout;
+
+typedef struct _TutorialLayout
+{
+    // Tutorial btn
+    int tutorialBtnFontSize;
+    Vector2 tutorialBtnPos;
+    Rectangle tutorialBtnRec;
+
+    // Next btn
+    int nextBtnFontSize;
+    Vector2 nextBtnPos;
+    Rectangle nextBtnRec;
+
+    // Tutorial Pages
+    int currentPageIndex;
+    int maxPages;
+} Ts_TutorialLayout;
 
 typedef struct _Player
 {
@@ -82,49 +128,54 @@ typedef struct _Player
     float safeTime;
 } Ts_Player;
 
-typedef struct _GameState
+typedef struct _Task
 {
-    // Points for player to win or lose
-    int maxCorrectPoints;
-    int maxIncorrectPoints;
-
-    Ts_Layout layoutConfig;
-
-    Ts_Helper helperConfig;
-
-    // Task Chance and Clock
     int chanceLeft;
     int chanceCenter;
     int chanceRight;
     float interval;
     float currentTime;
+    int maxCorrectPoints;
+    int maxIncorrectPoints;
+} Ts_Task;
+
+typedef struct _GameState
+{
+    Ts_Layout layoutConfig;
+
+    Ts_MathTaskData leftMathTask;
+    Ts_MathTaskData centerMathTask;
+    Ts_MathTaskData rightMathTask;
+
+    Ts_Jumpscare JumpscareConfig;
+
+    Ts_Player player;
+
+    Ts_Helper helperConfig;
+
+    Ts_BlinkEffect blinkState;
+
+    Ts_Task taskConfig;
+
+    Ts_TutorialLayout tutorialConfig;
 
     // Task Window
     int isLeftTaskTrue;
     int isCenterTaskTrue;
     int isRightTaskTrue;
 
-    // Math Problem
-    Ts_MathTaskData leftMathTask;
-    Ts_MathTaskData centerMathTask;
-    Ts_MathTaskData rightMathTask;
-
-    // Jumpscare
-    Ts_Jumpscare JumpscareConfig;
-
     // Monologue length
     float monoLen;
-
-    Ts_Player player;
-
-    // Blink effect
-    Ts_BlinkEffect blinkState;
-
 } Ts_GameState;
 
-// -------------------------- Prototyps --------------------------
-Ts_GameState GameStateConfig(const Ts_resources *res);
-Ts_GameState ResourcesLayout(Ts_GameState *state, const Ts_resources *res);
+// -------------------------- AUX FUNCTION --------------------------
+void ChangeGameState(GameLogicFunction newLogic, GameDrawFunction newDraw);
+GameLogicFunction GetCurrentLogic();
+GameDrawFunction GetCurrentDraw();
+
+// -------------------------- Game And Layout Config --------------------------
+void GameStateConfig(const Ts_resources *res, Ts_GameState *state);
+void ResourcesLayout(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Start Section --------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
@@ -135,25 +186,25 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state);
 void DrawClassroom(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Center Task --------------------------
-void LogicCenterTaskWindow(const Ts_resources *res, Ts_GameState *state);
-void DrawCenterTaskWindow(const Ts_resources *res, Ts_GameState *state);
+void LogicCenterTask(const Ts_resources *res, Ts_GameState *state);
+void DrawCenterTask(const Ts_resources *res, Ts_GameState *state);
 
 void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state);
 void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Right Task --------------------------
-void LogicRightTaskWindow(const Ts_resources *res, Ts_GameState *state);
-void DrawRightTaskWindow(const Ts_resources *res, Ts_GameState *state);
+void LogicRightTask(const Ts_resources *res, Ts_GameState *state);
+void DrawRightTask(const Ts_resources *res, Ts_GameState *state);
 
-void LogicRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state);
-void DrawRightTaskWindowLight(const Ts_resources *res, Ts_GameState *state);
+void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state);
+void DrawRightTaskLight(const Ts_resources *res, Ts_GameState *state);
 
 void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state);
 void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Left Task --------------------------
-void LogicLeftTaskWindow(const Ts_resources *res, Ts_GameState *state);
-void DrawLeftTaskWindow(const Ts_resources *res, Ts_GameState *state);
+void LogicLeftTask(const Ts_resources *res, Ts_GameState *state);
+void DrawLeftTask(const Ts_resources *res, Ts_GameState *state);
 
 void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state);
 void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state);
@@ -189,7 +240,6 @@ void TriggerBlink(float duration, Color color, float frequency);
 void UpdateBlink(void);
 void DrawBlink(void);
 
-// -------------------------- Other --------------------------
-void ChangeGameState(GameLogicFunction newLogic, GameDrawFunction newDraw);
-GameLogicFunction GetCurrentLogic();
-GameDrawFunction GetCurrentDraw();
+// -------------------------- Tutorial --------------------------
+void LogicTutorial(const Ts_resources *res, Ts_GameState *state);
+void DrawTutorial(const Ts_resources *res, Ts_GameState *state);

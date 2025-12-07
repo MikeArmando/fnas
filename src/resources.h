@@ -2,35 +2,10 @@
 #include "raylib.h"
 #include <stdbool.h>
 
-typedef struct _Resources
+#define MAX_BOOK_PAGES 6
+
+typedef struct _Music
 {
-    // Backgrounds
-    Texture2D classroomWindow;
-    Texture2D leftTaskWindow;
-    Texture2D centerTaskWindow;
-    Texture2D rightTaskWindow;
-    Texture2D rightTaskWindowLights;
-    Texture2D tutorialWindow;
-
-    // Background task indicators
-    Texture2D centerIndicator;
-    Texture2D leftIndicator;
-
-    // Background task true
-    Texture2D leftTaskTrue;
-    Texture2D centerTaskTrue;
-    Texture2D rightTaskTrue;
-
-    // Objects
-    Texture2D centerArrow;
-    Texture2D leftArrow;
-    Texture2D rightArrow;
-    Texture2D returnArrow;
-    Texture2D helper;
-
-    Texture2D monsterJumpscareImage;
-
-    // Music
     Music intro;
     Music m1Track;
     Music monoV1;
@@ -38,25 +13,72 @@ typedef struct _Resources
     Music background;
     Music ending;
     Music won;
+} Ts_Music;
 
-    // Sound Effects
+typedef struct _SFX
+{
+    // General
     Sound arrowClick;
-    Sound suspenseSound;
+    Sound suspense;
     Sound hasWon;
     Sound hasLost;
     Sound incorrect;
     Sound doorOpening;
     Sound girlJumpscare;
+    Sound suspenseSound;
 
-    // Left task
+    // Task
     Sound knockingOnWindow;
     Sound eatingCookie;
-    // Center task
     Sound ghostWriting;
     Sound answerOnChalkboard;
-    // Rigth task
     Sound girlLaugh;
     Sound doorClosed;
+} Ts_SFX;
+
+typedef struct _Textures
+{
+    // Tutorial
+    Texture2D tutorialPages[MAX_BOOK_PAGES];
+    Texture2D tutorialPart1;
+    Texture2D tutorialPart2;
+    Texture2D tutorialPart3;
+    Texture2D tutorialPart4;
+    Texture2D tutorialPart5;
+
+    Texture2D classroom;
+
+    // Tasks
+    Texture2D leftTaskWindow;
+    Texture2D centerTaskWindow;
+    Texture2D rightTaskWindow;
+    Texture2D rightTaskWindowLights;
+    Texture2D tutorialWindow;
+
+    // Indicators
+    Texture2D centerIndicator;
+    Texture2D leftIndicator;
+
+    // Tasks true
+    Texture2D leftTaskTrue;
+    Texture2D centerTaskTrue;
+    Texture2D rightTaskTrue;
+
+    // Interactive Objects
+    Texture2D centerArrow;
+    Texture2D leftArrow;
+    Texture2D rightArrow;
+    Texture2D returnArrow;
+    Texture2D helper;
+} Ts_Textures;
+
+typedef struct _Resources
+{
+    Ts_Textures texture;
+
+    Ts_Music music;
+
+    Ts_SFX sound;
 } Ts_resources;
 
 void resourcesLoad();
