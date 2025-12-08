@@ -67,7 +67,7 @@ void ResourcesLayout(const Ts_resources *res, Ts_GameState *state)
     float arrowSize = 60.0f;
     float returnArrowSize = 90.0f;
     float helperSize = 90.0f;
-    float helperWindowSize = 60.0f;
+    float helperWindowSize = 80.0f;
     float tutorialBtnSize = 18.0f;
 
     // Object Position
@@ -164,6 +164,12 @@ void ResourcesLayout(const Ts_resources *res, Ts_GameState *state)
         147.0f * scale,
         147.0f * scale};
 
+    state->blinkState.blinkRec = (Rectangle){
+        offsetX,
+        offsetY,
+        baseWidth * scale,
+        baseHeight * scale};
+
     // ------------------ MATH OP WINDOW POSITION BOOK ------------------
     float columnWidth = 150;
     float columnHeight = 60;
@@ -228,6 +234,7 @@ void ResourcesLayout(const Ts_resources *res, Ts_GameState *state)
     layout->creditsTitleY = offsetY + (650.0f * scale);
     layout->credit1Y = offsetY + (680.0f * scale);
     layout->credit2Y = offsetY + (700.0f * scale);
+    layout->credit3Y = offsetY + (720.0f * scale);
     layout->gameResults = offsetY + (700.0f * scale);
 
     layout->fontSizeTitle = (int)(60.0f * scale);
@@ -303,8 +310,9 @@ void DrawStartScreen(const Ts_resources *res, Ts_GameState *state)
     DrawText("Five Nigths At School", layout->startTitlePos.x, layout->startTitlePos.y, layout->fontSizeTitle, WHITE);
     DrawText("Presiona [ENTER] para comenzar . . .", layout->startTitlePos.x, layout->instructionY, layout->fontSizeInstruction, WHITE);
     DrawText("PRESENTADO POR:", layout->startTitlePos.x, layout->creditsTitleY, layout->fontSizeCredits, WHITE);
-    DrawText("Perez Aguirre Mextli Citlali - Diseño y Arte", layout->startTitlePos.x, layout->credit1Y, layout->fontSizeCredits, WHITE);
-    DrawText("Montano Valencia Mike Armando - Desarrollo de Software", layout->startTitlePos.x, layout->credit2Y, layout->fontSizeCredits, WHITE);
+    DrawText("Perez Aguirre Mextli Citlali", layout->startTitlePos.x, layout->credit1Y, layout->fontSizeCredits, WHITE);
+    DrawText("Meza Espinoza Kevin Andre", layout->startTitlePos.x, layout->credit2Y, layout->fontSizeCredits, WHITE);
+    DrawText("Zazueta Medrano Aidan", layout->startTitlePos.x, layout->credit3Y, layout->fontSizeCredits, WHITE);
     DrawText("TUTORIAL", (int)state->tutorialConfig.tutorialBtnPos.x, (int)state->tutorialConfig.tutorialBtnPos.y, state->tutorialConfig.tutorialBtnFontSize, WHITE);
 }
 
@@ -351,8 +359,12 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
 
+    int isMouseOverClickable = 0;
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.leftArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -363,6 +375,8 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
     }
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.centerArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -373,6 +387,8 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
     }
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.rightArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.doorOpening);
@@ -384,12 +400,20 @@ void LogicClassroom(const Ts_resources *res, Ts_GameState *state)
 
     if (CheckCollisionPointRec(mousePos, state->helperConfig.helperRec))
     {
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        isMouseOverClickable = 1;
         state->helperConfig.isHelpWindow = 1;
     }
     else
     {
         state->helperConfig.isHelpWindow = 0;
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
@@ -412,7 +436,7 @@ void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
     }
     if (state->helperConfig.isHelpWindow)
     {
-        DrawTextureEx(res->texture.tutorialWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
+        DrawTextureEx(res->texture.helperGeneralWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
     }
     DrawTextureEx(res->texture.helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
 }
@@ -421,14 +445,20 @@ void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
 void LogicLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+
+    int isMouseOverClickable = 0;
+
     if (state->isLeftTaskTrue)
     {
         PlaySound(res->sound.suspenseSound);
         ChangeGameState(LogicStartLeftTask, DrawStartLeftTask);
         return;
     }
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.returnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -436,6 +466,15 @@ void LogicLeftTask(const Ts_resources *res, Ts_GameState *state)
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -449,10 +488,15 @@ void DrawLeftTask(const Ts_resources *res, Ts_GameState *state)
 void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+
     Ts_MathTaskData *currentTask = &state->leftMathTask;
+
+    int isMouseOverClickable = 0;
 
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.returnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             TriggerBlink(0.2f, BLACK, 0.0f);
@@ -461,47 +505,71 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
         }
     }
 
+    if (CheckCollisionPointRec(mousePos, state->helperConfig.helperRec))
+    {
+        isMouseOverClickable = 1;
+        state->helperConfig.isHelpWindow = 1;
+    }
+    else
+    {
+        state->helperConfig.isHelpWindow = 0;
+    }
+
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]))
         {
-            state->player.idleTime = 0.0f;
+            isMouseOverClickable = 1;
 
-            if (i == currentTask->correctIndex)
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
-                currentTask->isActive = false;
-                state->isLeftTaskTrue = 0;
-                state->player.correctPoints++;
+                state->player.idleTime = 0.0f;
 
-                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                if (i == currentTask->correctIndex)
                 {
-                    PlaySound(res->sound.hasWon);
-                    PlayMusicStream(res->music.won);
-                    TriggerBlink(7.0f, BLACK, 0.0f);
-                    SaveGameResults(state, 1);
-                    ChangeGameState(LogicWonScreen, DrawWonScreen);
-                    return;
-                }
-                PlaySound(res->sound.eatingCookie);
-                TriggerBlink(0.2f, BLACK, 0.0f);
-                ChangeGameState(LogicClassroom, DrawClassroom);
-            }
-            else
-            {
-                state->player.incorrectPoints++;
+                    currentTask->isActive = false;
+                    state->isLeftTaskTrue = 0;
+                    state->player.correctPoints++;
 
-                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
-                {
-                    PlayMusicStream(res->music.ending);
-                    PlaySound(res->sound.girlJumpscare);
-                    TriggerJumpscare(state);
-                    return;
+                    if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                    {
+                        PlaySound(res->sound.hasWon);
+                        PlayMusicStream(res->music.won);
+                        TriggerBlink(7.0f, BLACK, 0.0f);
+                        SaveGameResults(state, 1);
+                        ChangeGameState(LogicWonScreen, DrawWonScreen);
+                        return;
+                    }
+                    PlaySound(res->sound.eatingCookie);
+                    TriggerBlink(0.2f, BLACK, 0.0f);
+                    ChangeGameState(LogicClassroom, DrawClassroom);
                 }
-                TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->sound.incorrect);
+                else
+                {
+                    state->player.incorrectPoints++;
+
+                    if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
+                    {
+                        PlayMusicStream(res->music.ending);
+                        PlaySound(res->sound.girlJumpscare);
+                        TriggerJumpscare(state);
+                        return;
+                    }
+                    TriggerBlink(0.1f, RED, 0.0f);
+                    PlaySound(res->sound.incorrect);
+                }
+                return;
             }
-            return;
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -513,6 +581,7 @@ void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
     ClearBackground(BLACK);
     DrawTextureEx(res->texture.leftTaskTrue, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
     DrawTextureEx(res->texture.returnArrow, layout->returnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+    DrawTextureEx(res->texture.helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
 
     // ------------------- DRAW QUESTION -------------------
     char mathNum1[16];
@@ -547,12 +616,19 @@ void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 
         DrawText(answersOnScreen, answerPosX, answerPosY, layout->bookFontSizeAnswer, BLACK);
     }
+
+    if (state->helperConfig.isHelpWindow)
+    {
+        DrawTextureEx(res->texture.helperSumWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
+    }
 }
 
 // --------------------------------------- CENTER SECTION ---------------------------------------
 void LogicCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+
+    int isMouseOverClickable = 0;
 
     if (state->isCenterTaskTrue)
     {
@@ -562,6 +638,8 @@ void LogicCenterTask(const Ts_resources *res, Ts_GameState *state)
 
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.returnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -569,6 +647,15 @@ void LogicCenterTask(const Ts_resources *res, Ts_GameState *state)
             ChangeGameState(LogicClassroom, DrawClassroom);
             return;
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -584,8 +671,11 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
     Vector2 mousePos = GetMousePosition();
     Ts_MathTaskData *currentTask = &state->centerMathTask;
 
+    int isMouseOverClickable = 0;
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.returnArrowRec))
     {
+        isMouseOverClickable = 1;
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             TriggerBlink(0.2f, BLACK, 0.0f);
@@ -594,47 +684,71 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
         }
     }
 
+    if (CheckCollisionPointRec(mousePos, state->helperConfig.helperRec))
+    {
+        isMouseOverClickable = 1;
+        state->helperConfig.isHelpWindow = 1;
+    }
+    else
+    {
+        state->helperConfig.isHelpWindow = 0;
+    }
+
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.chalkboardMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.chalkboardMathAnswersRec[i]))
         {
-            state->player.idleTime = 0.0f;
+            isMouseOverClickable = 1;
 
-            if (i == currentTask->correctIndex)
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
-                currentTask->isActive = false;
-                state->isCenterTaskTrue = 0;
-                state->player.correctPoints++;
+                state->player.idleTime = 0.0f;
 
-                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                if (i == currentTask->correctIndex)
                 {
-                    PlaySound(res->sound.hasWon);
-                    PlayMusicStream(res->music.won);
-                    TriggerBlink(7.0f, BLACK, 0.0f);
-                    SaveGameResults(state, 1);
-                    ChangeGameState(LogicWonScreen, DrawWonScreen);
-                    return;
-                }
-                PlaySound(res->sound.answerOnChalkboard);
-                TriggerBlink(0.2f, BLACK, 0.0f);
-                ChangeGameState(LogicClassroom, DrawClassroom);
-            }
-            else
-            {
-                state->player.incorrectPoints++;
+                    currentTask->isActive = false;
+                    state->isCenterTaskTrue = 0;
+                    state->player.correctPoints++;
 
-                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
-                {
-                    PlayMusicStream(res->music.ending);
-                    PlaySound(res->sound.girlJumpscare);
-                    TriggerJumpscare(state);
-                    return;
+                    if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                    {
+                        PlaySound(res->sound.hasWon);
+                        PlayMusicStream(res->music.won);
+                        TriggerBlink(7.0f, BLACK, 0.0f);
+                        SaveGameResults(state, 1);
+                        ChangeGameState(LogicWonScreen, DrawWonScreen);
+                        return;
+                    }
+                    PlaySound(res->sound.answerOnChalkboard);
+                    TriggerBlink(0.2f, BLACK, 0.0f);
+                    ChangeGameState(LogicClassroom, DrawClassroom);
                 }
-                TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->sound.incorrect);
+                else
+                {
+                    state->player.incorrectPoints++;
+
+                    if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
+                    {
+                        PlayMusicStream(res->music.ending);
+                        PlaySound(res->sound.girlJumpscare);
+                        TriggerJumpscare(state);
+                        return;
+                    }
+                    TriggerBlink(0.1f, RED, 0.0f);
+                    PlaySound(res->sound.incorrect);
+                }
+                return;
             }
-            return;
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -646,6 +760,7 @@ void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
     ClearBackground(BLACK);
     DrawTextureEx(res->texture.centerTaskWindow, state->layoutConfig.positionAbsolute, 0.0f, state->layoutConfig.scaleFit, WHITE);
     DrawTextureEx(res->texture.returnArrow, layout->returnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+    DrawTextureEx(res->texture.helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
 
     char questionStr[16];
     sprintf(questionStr, "%d %c %d %s", currentTask->num1, currentTask->op, currentTask->num2, "= ?");
@@ -665,14 +780,23 @@ void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 
         DrawText(answersOnScreen, answerPosX, answerPosY, layout->chalkboardFontSizeAnswer, LIGHTGRAY);
     }
+    if (state->helperConfig.isHelpWindow)
+    {
+        DrawTextureEx(res->texture.helperMultWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
+    }
 }
 
 // --------------------------------------- RIGHT SECTION ---------------------------------------
 void LogicRightTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+
+    int isMouseOverClickable = 0;
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.RightTaskReturnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.doorOpening);
@@ -681,13 +805,25 @@ void LogicRightTask(const Ts_resources *res, Ts_GameState *state)
             return;
         }
     }
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.flashlightRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
             ChangeGameState(LogicRightTaskLight, DrawRightTaskLight);
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -701,8 +837,13 @@ void DrawRightTask(const Ts_resources *res, Ts_GameState *state)
 void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+
+    int isMouseOverClickable = 0;
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.RightTaskReturnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.doorOpening);
@@ -711,8 +852,11 @@ void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
             return;
         }
     }
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.flashlightRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -724,6 +868,15 @@ void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
     {
         ChangeGameState(LogicStartRightTask, DrawStartRightTask);
         return;
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -739,8 +892,12 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
     Vector2 mousePos = GetMousePosition();
     Ts_MathTaskData *currentTask = &state->rightMathTask;
 
+    int isMouseOverClickable = 0;
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.RightTaskReturnArrowRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.doorOpening);
@@ -749,8 +906,11 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
             return;
         }
     }
+
     if (CheckCollisionPointRec(mousePos, state->layoutConfig.flashlightRec))
     {
+        isMouseOverClickable = 1;
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -758,47 +918,71 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
         }
     }
 
+    if (CheckCollisionPointRec(mousePos, state->helperConfig.helperRec))
+    {
+        isMouseOverClickable = 1;
+        state->helperConfig.isHelpWindow = 1;
+    }
+    else
+    {
+        state->helperConfig.isHelpWindow = 0;
+    }
+
     for (int i = 0; i < 4; i++)
     {
-        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (CheckCollisionPointRec(mousePos, state->layoutConfig.bookMathAnswersRec[i]))
         {
-            state->player.idleTime = 0.0f;
+            isMouseOverClickable = 1;
 
-            if (i == currentTask->correctIndex)
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
-                currentTask->isActive = false;
-                state->isRightTaskTrue = 0;
-                state->player.correctPoints++;
+                state->player.idleTime = 0.0f;
 
-                if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                if (i == currentTask->correctIndex)
                 {
-                    PlaySound(res->sound.hasWon);
-                    PlayMusicStream(res->music.won);
-                    TriggerBlink(7.0f, BLACK, 0.0f);
-                    SaveGameResults(state, 1);
-                    ChangeGameState(LogicWonScreen, DrawWonScreen);
-                    return;
-                }
-                PlaySound(res->sound.girlLaugh);
-                TriggerBlink(0.2f, BLACK, 0.0f);
-                ChangeGameState(LogicRightTask, DrawRightTask);
-            }
-            else
-            {
-                state->player.incorrectPoints++;
+                    currentTask->isActive = false;
+                    state->isRightTaskTrue = 0;
+                    state->player.correctPoints++;
 
-                if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
-                {
-                    PlayMusicStream(res->music.ending);
-                    PlaySound(res->sound.girlJumpscare);
-                    TriggerJumpscare(state);
-                    return;
+                    if (state->player.correctPoints >= state->taskConfig.maxCorrectPoints)
+                    {
+                        PlaySound(res->sound.hasWon);
+                        PlayMusicStream(res->music.won);
+                        TriggerBlink(7.0f, BLACK, 0.0f);
+                        SaveGameResults(state, 1);
+                        ChangeGameState(LogicWonScreen, DrawWonScreen);
+                        return;
+                    }
+                    PlaySound(res->sound.girlLaugh);
+                    TriggerBlink(0.2f, BLACK, 0.0f);
+                    ChangeGameState(LogicRightTask, DrawRightTask);
                 }
-                TriggerBlink(0.1f, RED, 0.0f);
-                PlaySound(res->sound.incorrect);
+                else
+                {
+                    state->player.incorrectPoints++;
+
+                    if (state->player.incorrectPoints >= state->taskConfig.maxIncorrectPoints)
+                    {
+                        PlayMusicStream(res->music.ending);
+                        PlaySound(res->sound.girlJumpscare);
+                        TriggerJumpscare(state);
+                        return;
+                    }
+                    TriggerBlink(0.1f, RED, 0.0f);
+                    PlaySound(res->sound.incorrect);
+                }
+                return;
             }
-            return;
         }
+    }
+
+    if (isMouseOverClickable)
+    {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    }
+    else
+    {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
@@ -810,6 +994,7 @@ void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state)
     ClearBackground(BLACK);
     DrawTextureEx(res->texture.rightTaskTrue, layout->positionAbsolute, 0.0f, layout->scaleFit, WHITE);
     DrawTextureEx(res->texture.returnArrow, layout->RightTaskReturnArrowPos, 0.0f, layout->scaleReturnArrow, WHITE);
+    DrawTextureEx(res->texture.helper, state->helperConfig.helperPos, 0.0f, state->helperConfig.scaleHelper, WHITE);
 
     // ------------------- DRAW QUESTION -------------------
     char mathNum1[16];
@@ -843,6 +1028,10 @@ void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state)
         int answerPosY = (int)(layout->bookMathAnswersRec[i].y + (layout->bookMathAnswersRec[i].height / 2) - (layout->bookFontSizeAnswer / 2));
 
         DrawText(answersOnScreen, answerPosX, answerPosY, layout->bookFontSizeAnswer, BLACK);
+    }
+    if (state->helperConfig.isHelpWindow)
+    {
+        DrawTextureEx(res->texture.helperSubWindow, state->helperConfig.tutorialWindowPos, 0.0f, state->helperConfig.scaleHelperWindow, WHITE);
     }
 }
 
@@ -1116,24 +1305,29 @@ void UpdateBlink(void)
     }
 }
 
-void DrawBlink(void)
+void DrawBlink(const Ts_GameState *state)
 {
     if (BlinkConfig.active)
     {
+        // Caso 1: Color sólido (sin parpadeo)
         if (BlinkConfig.frequency <= 0.0f)
         {
             float alpha = BlinkConfig.currentTimer / BlinkConfig.duration;
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BlinkConfig.color, alpha));
+
+            // USAMOS EL RECTÁNGULO PRE-CALCULADO
+            DrawRectangleRec(state->blinkState.blinkRec, Fade(BlinkConfig.color, alpha));
             return;
         }
 
+        // Caso 2: Parpadeo intermitente
         float timeElapsed = BlinkConfig.duration - BlinkConfig.currentTimer;
         float cycleInterval = 1.0f / BlinkConfig.frequency;
         float cycleTime = fmodf(timeElapsed, cycleInterval);
 
         if (cycleTime < (cycleInterval / 2.0f))
         {
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BlinkConfig.color, 0.5f));
+            // USAMOS EL RECTÁNGULO PRE-CALCULADO
+            DrawRectangleRec(state->blinkState.blinkRec, Fade(BlinkConfig.color, 0.5f));
         }
     }
 }

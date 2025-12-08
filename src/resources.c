@@ -14,7 +14,6 @@ void resourcesLoad()
     res.texture.leftTaskWindow = LoadTexture("backgrounds/left_task_window.png");
     res.texture.rightTaskWindow = LoadTexture("backgrounds/right_task_window.png");
     res.texture.rightTaskWindowLights = LoadTexture("backgrounds/right_task_window_light_on.png");
-    res.texture.tutorialWindow = LoadTexture("backgrounds/tutorial.jpg");
 
     // Tutorial
     res.texture.tutorialPages[0] = LoadTexture("backgrounds/tutorial1.png");
@@ -23,12 +22,6 @@ void resourcesLoad()
     res.texture.tutorialPages[3] = LoadTexture("backgrounds/tutorial4.png");
     res.texture.tutorialPages[4] = LoadTexture("backgrounds/tutorial5.png");
     res.texture.tutorialPages[5] = LoadTexture("backgrounds/tutorial6.png");
-
-    res.texture.tutorialPart1 = LoadTexture("backgrounds/tutorial1.png");
-    res.texture.tutorialPart2 = LoadTexture("backgrounds/tutorial.png");
-    res.texture.tutorialPart3 = LoadTexture("backgrounds/tutorial.png");
-    res.texture.tutorialPart4 = LoadTexture("backgrounds/tutorial.png");
-    res.texture.tutorialPart5 = LoadTexture("backgrounds/tutorial.png");
 
     // Background task indicators
     res.texture.centerIndicator = LoadTexture("objects/center_task_indicator.png");
@@ -45,6 +38,10 @@ void resourcesLoad()
     res.texture.rightArrow = LoadTexture("objects/arrow_right.png");
     res.texture.returnArrow = LoadTexture("objects/arrow_down.png");
     res.texture.helper = LoadTexture("objects/helper.png");
+    res.texture.helperGeneralWindow = LoadTexture("objects/tutorial_general.png");
+    res.texture.helperSumWindow = LoadTexture("objects/helper_addition.png");
+    res.texture.helperSubWindow = LoadTexture("objects/helper_subtraction.png");
+    res.texture.helperMultWindow = LoadTexture("objects/helper_mult.png");
 
     // Music
     res.music.intro = LoadMusicStream("music/intro.mp3");
@@ -123,7 +120,7 @@ void resourcesUnload()
     UnloadTexture(res.texture.leftTaskWindow);
     UnloadTexture(res.texture.rightTaskWindow);
     UnloadTexture(res.texture.rightTaskWindowLights);
-    UnloadTexture(res.texture.tutorialWindow);
+    UnloadTexture(res.texture.helperGeneralWindow);
 
     UnloadTexture(res.texture.leftTaskTrue);
     UnloadTexture(res.texture.centerTaskTrue);

@@ -40,12 +40,6 @@ typedef struct _Textures
 {
     // Tutorial
     Texture2D tutorialPages[MAX_BOOK_PAGES];
-    Texture2D tutorialPart1;
-    Texture2D tutorialPart2;
-    Texture2D tutorialPart3;
-    Texture2D tutorialPart4;
-    Texture2D tutorialPart5;
-
     Texture2D classroom;
 
     // Tasks
@@ -53,7 +47,12 @@ typedef struct _Textures
     Texture2D centerTaskWindow;
     Texture2D rightTaskWindow;
     Texture2D rightTaskWindowLights;
-    Texture2D tutorialWindow;
+
+    // Helper Window
+    Texture2D helperGeneralWindow;
+    Texture2D helperSumWindow;
+    Texture2D helperSubWindow;
+    Texture2D helperMultWindow;
 
     // Indicators
     Texture2D centerIndicator;
@@ -82,7 +81,5 @@ typedef struct _Resources
 } Ts_resources;
 
 void resourcesLoad();
-
 void resourcesUnload();
-
 const Ts_resources *resourcesGet();

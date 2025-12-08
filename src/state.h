@@ -25,6 +25,11 @@ typedef struct _BlinkEffect
     float frequency;
     bool blinkOnce;
     Color color;
+
+    // Background scale
+    float scaleFit;
+    Vector2 blinkPos;
+    Rectangle blinkRec;
 } Ts_BlinkEffect;
 
 typedef struct _MathTaskData
@@ -93,6 +98,7 @@ typedef struct _Layout
     float creditsTitleY;
     float credit1Y;
     float credit2Y;
+    float credit3Y;
     float gameResults;
 
     float fontSizeTitle;
@@ -238,7 +244,7 @@ void assignWrongChoices(Ts_MathTaskData *task);
 // -------------------------- Blink Effect --------------------------
 void TriggerBlink(float duration, Color color, float frequency);
 void UpdateBlink(void);
-void DrawBlink(void);
+void DrawBlink(const Ts_GameState *state);
 
 // -------------------------- Tutorial --------------------------
 void LogicTutorial(const Ts_resources *res, Ts_GameState *state);

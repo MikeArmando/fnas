@@ -78,7 +78,7 @@ int main()
 		if (currentDraw)
 		{
 			currentDraw(res, &state);
-			DrawBlink();
+			DrawBlink(&state);
 		}
 		EndDrawing();
 	}
