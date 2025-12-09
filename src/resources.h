@@ -80,6 +80,17 @@ typedef struct _Resources
     Ts_SFX sound;
 } Ts_resources;
 
+// -------------------------- Load Resources --------------------------
 void resourcesLoad();
+void LoadAllTextures(Ts_Textures *textures);
+void LoadAllMusic(Ts_Music *music);
+void LoadAllSounds(Ts_SFX *sound);
+
+// -------------------------- Unload Resources --------------------------
 void resourcesUnload();
+void UnloadAllTextures(Ts_Textures *textures);
+void UnloadAllMusic(Ts_Music *music);
+void UnloadAllSounds(Ts_SFX *sound);
+
+// -------------------------- Get Resources --------------------------
 const Ts_resources *resourcesGet();

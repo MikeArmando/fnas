@@ -1,7 +1,12 @@
+Estado: GANASTE 
+Tiempo: 185.93 segundos
+Respuestas correctas: 15
+Respuestas incorrectas: 0
+
 Estado: PERDISTE 
-Tiempo: 107.28 segundos
-Respuestas correctas: 2
-Respuestas incorrectas: 5
+Tiempo: 116.00 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
 
 Estado: PERDISTE 
 Tiempo: 116.01 segundos
@@ -9,67 +14,47 @@ Respuestas correctas: 0
 Respuestas incorrectas: 0
 
 Estado: PERDISTE 
-Tiempo: 129.65 segundos
+Tiempo: 116.00 segundos
 Respuestas correctas: 0
-Respuestas incorrectas: 2
+Respuestas incorrectas: 0
 
 Estado: PERDISTE 
-Tiempo: 182.68 segundos
-Respuestas correctas: 3
-Respuestas incorrectas: 4
-
-Estado: PERDISTE 
-Tiempo: 117.63 segundos
+Tiempo: 108.78 segundos
 Respuestas correctas: 1
 Respuestas incorrectas: 5
 
 Estado: PERDISTE 
-Tiempo: 108.01 segundos
-Respuestas correctas: 0
+Tiempo: 73.99 segundos
+Respuestas correctas: 1
 Respuestas incorrectas: 5
 
 Estado: PERDISTE 
-Tiempo: 156.32 segundos
-Respuestas correctas: 4
+Tiempo: 89.39 segundos
+Respuestas correctas: 3
 Respuestas incorrectas: 5
 
 Estado: PERDISTE 
-Tiempo: 126.65 segundos
-Respuestas correctas: 0
+Tiempo: 235.65 segundos
+Respuestas correctas: 13
+Respuestas incorrectas: 3
+
+Estado: GANASTE 
+Tiempo: 234.49 segundos
+Respuestas correctas: 15
 Respuestas incorrectas: 1
 
 Estado: PERDISTE 
-Tiempo: 284.26 segundos
-Respuestas correctas: 10
-Respuestas incorrectas: 3
+Tiempo: 85.07 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 5
 
 Estado: PERDISTE 
 Tiempo: 116.00 segundos
 Respuestas correctas: 0
 Respuestas incorrectas: 0
 
-Estado: GANASTE 
-Tiempo: 247.30 segundos
-Respuestas correctas: 15
-Respuestas incorrectas: 4
-
 Estado: PERDISTE 
-Tiempo: 72.65 segundos
-Respuestas correctas: 0
-Respuestas incorrectas: 5
-
-Estado: PERDISTE 
-Tiempo: 106.76 segundos
-Respuestas correctas: 1
-Respuestas incorrectas: 5
-
-Estado: PERDISTE 
-Tiempo: 139.58 segundos
-Respuestas correctas: 1
-Respuestas incorrectas: 5
-
-Estado: PERDISTE 
-Tiempo: 84.62 segundos
-Respuestas correctas: 1
+Tiempo: 185.00 segundos
+Respuestas correctas: 7
 Respuestas incorrectas: 5
 

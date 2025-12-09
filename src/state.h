@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "resources.h"
 
+#define MAX_ANSWERS 4
+
 // ----------------- initialization -----------------
 typedef struct _GameState Ts_GameState;
 typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
@@ -38,7 +40,7 @@ typedef struct _MathTaskData
     int num2;
     char op;
     int correctAnswer;
-    int choicesList[4];
+    int choicesList[MAX_ANSWERS];
     int correctIndex;
     bool isActive;
 } Ts_MathTaskData;
@@ -50,36 +52,37 @@ typedef struct _Jumpscare
     GameDrawFunction lastDrawFunction;
 } Ts_Jumpscare;
 
-typedef struct _Layout
+typedef struct _ArrowLayout
 {
-    float scaleFit;
-    Vector2 positionAbsolute;
-
     float scaleArrow;
     float scaleReturnArrow;
-
-    float scaleUI;
-    float offsetX;
-    float offsetY;
 
     Vector2 centerArrowPos;
     Vector2 leftArrowPos;
     Vector2 rightArrowPos;
     Vector2 returnArrowPos;
+    Vector2 RightReturnArrowPos;
 
     Rectangle centerArrowRec;
     Rectangle leftArrowRec;
     Rectangle rightArrowRec;
     Rectangle returnArrowRec;
+    Rectangle RightReturnArrowRec;
+} Ts_ArrowLayout;
 
-    Vector2 RightTaskReturnArrowPos;
-    Rectangle RightTaskReturnArrowRec;
+typedef struct _Layout
+{
+    float scaleFit;
+    float scaleUI;
+    float offsetX;
+    float offsetY;
+    Vector2 positionAbsolute;
 
     Rectangle flashlightRec;
 
     // Math Window
-    Rectangle bookMathAnswersRec[4];
-    Rectangle chalkboardMathAnswersRec[4];
+    Rectangle bookMathAnswersRec[MAX_ANSWERS];
+    Rectangle chalkboardMathAnswersRec[MAX_ANSWERS];
 
     // Book Math Section
     int bookFontSizeQuestion;
@@ -98,10 +101,13 @@ typedef struct _Layout
     float creditsTitleY;
     float credit1Y;
     float credit2Y;
-    float credit3Y;
     float gameResults;
 
-    float fontSizeTitle;
+    // Best time
+    float bestTimeFontSize;
+    Vector2 bestTimeTextPos;
+
+    int fontSizeTitle;
     int fontSizeInstruction;
     int fontSizeResults;
     int fontSizeCredits;
@@ -129,6 +135,7 @@ typedef struct _Player
     int correctPoints;
     int incorrectPoints;
     float playerTotalTime;
+    float bestTime;
     float idleTime;
     float previousIdleTime;
     float safeTime;
@@ -147,23 +154,27 @@ typedef struct _Task
 
 typedef struct _GameState
 {
-    Ts_Layout layoutConfig;
+    bool gameInit;
+
+    Ts_Layout layout;
+
+    Ts_ArrowLayout arrow;
 
     Ts_MathTaskData leftMathTask;
     Ts_MathTaskData centerMathTask;
     Ts_MathTaskData rightMathTask;
 
-    Ts_Jumpscare JumpscareConfig;
+    Ts_Jumpscare Jumpscare;
 
     Ts_Player player;
 
-    Ts_Helper helperConfig;
+    Ts_Helper helper;
 
     Ts_BlinkEffect blinkState;
 
-    Ts_Task taskConfig;
+    Ts_Task task;
 
-    Ts_TutorialLayout tutorialConfig;
+    Ts_TutorialLayout tutorial;
 
     // Task Window
     int isLeftTaskTrue;
@@ -179,9 +190,12 @@ void ChangeGameState(GameLogicFunction newLogic, GameDrawFunction newDraw);
 GameLogicFunction GetCurrentLogic();
 GameDrawFunction GetCurrentDraw();
 
-// -------------------------- Game And Layout Config --------------------------
+// -------------------------- Initial Game Config --------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state);
 void ResourcesLayout(const Ts_resources *res, Ts_GameState *state);
+void CalculateGlobalScale(const Ts_resources *res, Ts_GameState *state);
+void CalculateObjectPositions(Ts_GameState *state);
+void CalculateHitboxes(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Start Section --------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
@@ -222,8 +236,9 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state);
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state);
 void DrawLostScreen(const Ts_resources *res, Ts_GameState *state);
 
-// -------------------------- Save Game Results --------------------------
+// -------------------------- Game Results --------------------------
 void SaveGameResults(Ts_GameState *state, int playerWon);
+float LoadBestTime();
 
 // -------------------------- JumpScare --------------------------
 void TriggerJumpscare(Ts_GameState *state);

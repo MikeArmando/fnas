@@ -33,8 +33,6 @@ int main()
 			ResourcesLayout(res, &state);
 		}
 
-		UpdateMusicStream(res->music.monoV1);
-
 		// ----------------- Logic Section -----------------
 		GameLogicFunction currentLogic = GetCurrentLogic();
 		if (currentLogic)
@@ -42,22 +40,18 @@ int main()
 			currentLogic(res, &state);
 		}
 
-		if (currentLogic != LogicStartScreen)
+		bool skipGameLogic = (currentLogic == LogicStartScreen || currentLogic == LogicLostScreen ||
+							  currentLogic == LogicWonScreen || currentLogic == LogicTutorial);
+
+		if (!skipGameLogic)
 		{
-			if (currentLogic != LogicLostScreen)
-			{
-				if (currentLogic != LogicWonScreen)
-				{
-					if (currentLogic != LogicTutorial)
-					{
-						UpdateMusicStream(res->music.background);
+			UpdateMusicStream(res->music.monoV1);
 
-						playerIdleTimer(res, &state);
+			UpdateMusicStream(res->music.background);
 
-						StartTimerTask(res, &state);
-					}
-				}
-			}
+			playerIdleTimer(res, &state);
+
+			StartTimerTask(res, &state);
 		}
 
 		// Monologue
@@ -74,6 +68,7 @@ int main()
 
 		// ----------------- Drawing Section -----------------
 		BeginDrawing();
+		ClearBackground(BLACK);
 		GameDrawFunction currentDraw = GetCurrentDraw();
 		if (currentDraw)
 		{
