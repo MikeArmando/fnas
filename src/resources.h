@@ -34,14 +34,14 @@ typedef struct _SFX
     Sound ghostWriting;
     Sound answerOnChalkboard;
     Sound girlLaugh;
-    Sound girlSinging;
+    Sound girlSuspense;
     Sound doorClosed;
 } Ts_SFX;
 
 typedef struct _Textures
 {
     // Start screen
-    Texture2D startBtns;
+    Texture2D menuBtns[2];
 
     // Tutorial
     Texture2D tutorialPages[MAX_BOOK_PAGES];

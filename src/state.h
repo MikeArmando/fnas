@@ -9,6 +9,17 @@ typedef struct _GameState Ts_GameState;
 typedef void (*GameLogicFunction)(const Ts_resources *res, Ts_GameState *state);
 typedef void (*GameDrawFunction)(const Ts_resources *res, Ts_GameState *state);
 
+typedef struct _Player
+{
+    int correctPoints;
+    int incorrectPoints;
+    float playerTotalTime;
+    float bestTime;
+    float idleTime;
+    float previousIdleTime;
+    float safeTime;
+} Ts_Player;
+
 typedef struct _Helper
 {
     float scaleHelper;
@@ -18,6 +29,58 @@ typedef struct _Helper
     Vector2 tutorialWindowPos;
     int isHelpWindow;
 } Ts_Helper;
+
+typedef struct _Task
+{
+    int chanceLeft;
+    int chanceCenter;
+    int chanceRight;
+    float interval;
+    float currentTime;
+    int maxCorrectPoints;
+    int maxIncorrectPoints;
+
+    int isLeftTaskTrue;
+    int isCenterTaskTrue;
+    int isRightTaskTrue;
+} Ts_Task;
+
+typedef struct _Math
+{
+    // Math Window
+    Rectangle bookMathAnswersRec[MAX_ANSWERS];
+    Rectangle chalkboardMathAnswersRec[MAX_ANSWERS];
+
+    // Book Math Section
+    int bookFontSizeQuestion;
+    int bookFontSizeAnswer;
+    Vector2 MathOpLine1Pos;
+    Vector2 MathOpLine2Pos;
+
+    // Book Math Section
+    int chalkboardFontSizeQuestion;
+    int chalkboardFontSizeAnswer;
+    Vector2 chalkboardMathQuestionPos;
+} Ts_Math;
+
+typedef struct _MathTaskData
+{
+    int num1;
+    int num2;
+    char op;
+    int correctAnswer;
+    int choicesList[MAX_ANSWERS];
+    int correctIndex;
+    bool isActive;
+    const Sound *successSound;
+} Ts_MathTaskData;
+
+typedef struct _Jumpscare
+{
+    float jumpscareTimer;
+    int jumpscareAudioPlayed;
+    GameDrawFunction lastDrawFunction;
+} Ts_Jumpscare;
 
 typedef struct _BlinkEffect
 {
@@ -34,25 +97,7 @@ typedef struct _BlinkEffect
     Rectangle blinkRec;
 } Ts_BlinkEffect;
 
-typedef struct _MathTaskData
-{
-    int num1;
-    int num2;
-    char op;
-    int correctAnswer;
-    int choicesList[MAX_ANSWERS];
-    int correctIndex;
-    bool isActive;
-} Ts_MathTaskData;
-
-typedef struct _Jumpscare
-{
-    float jumpscareTimer;
-    int jumpscareAudioPlayed;
-    GameDrawFunction lastDrawFunction;
-} Ts_Jumpscare;
-
-typedef struct _ArrowLayout
+typedef struct _Arrow
 {
     float scaleArrow;
     float scaleReturnArrow;
@@ -68,34 +113,10 @@ typedef struct _ArrowLayout
     Rectangle rightArrowRec;
     Rectangle returnArrowRec;
     Rectangle RightReturnArrowRec;
-} Ts_ArrowLayout;
+} Ts_Arrow;
 
-typedef struct _Layout
+typedef struct _startAndLost
 {
-    float scaleFit;
-    float scaleUI;
-    float offsetX;
-    float offsetY;
-    Vector2 positionAbsolute;
-
-    Rectangle flashlightRec;
-    Rectangle noseRec;
-
-    // Math Window
-    Rectangle bookMathAnswersRec[MAX_ANSWERS];
-    Rectangle chalkboardMathAnswersRec[MAX_ANSWERS];
-
-    // Book Math Section
-    int bookFontSizeQuestion;
-    int bookFontSizeAnswer;
-    Vector2 MathOpLine1Pos;
-    Vector2 MathOpLine2Pos;
-
-    // Book Math Section
-    int chalkboardFontSizeQuestion;
-    int chalkboardFontSizeAnswer;
-    Vector2 chalkboardMathQuestionPos;
-
     // Won/Lost Screen
     Vector2 startTitlePos;
     float instructionY;
@@ -112,12 +133,11 @@ typedef struct _Layout
     int fontSizeInstruction;
     int fontSizeResults;
     int fontSizeCredits;
-} Ts_Layout;
+} Ts_startAndLost;
 
-typedef struct _TutorialLayout
+typedef struct _Menu
 {
     // Tutorial btn
-    int tutorialBtnFontSize;
     Vector2 tutorialBtnPos;
     Rectangle tutorialBtnRec;
 
@@ -129,37 +149,40 @@ typedef struct _TutorialLayout
     // Tutorial Pages
     int currentPageIndex;
     int maxPages;
-} Ts_TutorialLayout;
 
-typedef struct _Player
-{
-    int correctPoints;
-    int incorrectPoints;
-    float playerTotalTime;
-    float bestTime;
-    float idleTime;
-    float previousIdleTime;
-    float safeTime;
-} Ts_Player;
+    // Silence btn
+    int silenceBtnFontSize;
+    Vector2 silenceBtnPos;
+    Rectangle silenceBtnRec;
+    int silenceBtnCurrentIndex;
+} Ts_Menu;
 
-typedef struct _Task
+typedef struct _Layout
 {
-    int chanceLeft;
-    int chanceCenter;
-    int chanceRight;
-    float interval;
-    float currentTime;
-    int maxCorrectPoints;
-    int maxIncorrectPoints;
-} Ts_Task;
+    // Genral for image and object
+    float scaleFit;
+    float scaleUI;
+    float offsetX;
+    float offsetY;
+    Vector2 positionAbsolute;
+
+    Ts_Menu tutorial;
+
+    Ts_Arrow arrow;
+
+    Ts_Math math;
+
+    Rectangle flashlightRec;
+    Rectangle noseRec;
+
+    Ts_startAndLost startAndLost;
+} Ts_Layout;
 
 typedef struct _GameState
 {
     bool gameInit;
 
     Ts_Layout layout;
-
-    Ts_ArrowLayout arrow;
 
     Ts_MathTaskData leftMathTask;
     Ts_MathTaskData centerMathTask;
@@ -175,14 +198,6 @@ typedef struct _GameState
 
     Ts_Task task;
 
-    Ts_TutorialLayout tutorial;
-
-    // Task Window
-    int isLeftTaskTrue;
-    int isCenterTaskTrue;
-    int isRightTaskTrue;
-
-    // Monologue length
     float monoLen;
 } Ts_GameState;
 
@@ -235,6 +250,9 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state);
 
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state);
 void DrawLostScreen(const Ts_resources *res, Ts_GameState *state);
+
+// -------------------------- Task Handle --------------------------
+void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex, int *taskFlag);
 
 // -------------------------- Game Results --------------------------
 void SaveGameResults(Ts_GameState *state, int playerWon);
