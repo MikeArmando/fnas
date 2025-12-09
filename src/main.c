@@ -30,7 +30,9 @@ int main()
 	{
 		if (IsWindowResized())
 		{
-			ResourcesLayout(res, &state);
+			CalculateGlobalScale(res, &state);
+			CalculateObjectPositions(&state);
+			CalculateHitboxes(res, &state);
 		}
 
 		// ----------------- Logic Section -----------------

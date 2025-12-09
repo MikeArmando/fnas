@@ -24,8 +24,9 @@ typedef struct _SFX
     Sound hasLost;
     Sound incorrect;
     Sound doorOpening;
-    Sound girlJumpscare;
+    Sound jumpscare;
     Sound suspenseSound;
+    Sound CatMeow;
 
     // Task
     Sound knockingOnWindow;
@@ -33,11 +34,15 @@ typedef struct _SFX
     Sound ghostWriting;
     Sound answerOnChalkboard;
     Sound girlLaugh;
+    Sound girlSinging;
     Sound doorClosed;
 } Ts_SFX;
 
 typedef struct _Textures
 {
+    // Start screen
+    Texture2D startBtns;
+
     // Tutorial
     Texture2D tutorialPages[MAX_BOOK_PAGES];
     Texture2D classroom;

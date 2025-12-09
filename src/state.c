@@ -10,6 +10,7 @@ static GameLogicFunction currentLogic = 0;
 static GameDrawFunction currentDraw = 0;
 static Ts_BlinkEffect BlinkConfig = {0};
 
+// --------------------------------------- GAME CONFIG ---------------------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
     // ------------------ TASK INITIAL SETUP ------------------
@@ -34,18 +35,8 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     // ------------------ MONOLOGUE INITIAL SETUP ------------------
     state->monoLen = GetMusicTimeLength(res->music.monoV1);
 
-    ResourcesLayout(res, state);
-}
-
-void ResourcesLayout(const Ts_resources *res, Ts_GameState *state)
-{
-    // Scale
     CalculateGlobalScale(res, state);
-
-    // Position
     CalculateObjectPositions(state);
-
-    // Hitboxes
     CalculateHitboxes(res, state);
 }
 
@@ -157,6 +148,9 @@ void CalculateHitboxes(const Ts_resources *res, Ts_GameState *state)
     int flashlightBase = 160.0f;
     int flashlightHeight = 160.0f;
 
+    int noseBase = 70.0f;
+    int noseHeight = 415.0f;
+
     // ------------------ COLISION OBJECTS POSITIONS ------------------
     arrow->centerArrowRec = (Rectangle){
         arrow->centerArrowPos.x,
@@ -199,6 +193,12 @@ void CalculateHitboxes(const Ts_resources *res, Ts_GameState *state)
         offsetY + (640.0f * scale),
         flashlightBase * scale,
         flashlightHeight * scale};
+
+    layout->noseRec = (Rectangle){
+        offsetX + (266.0f * scale),
+        offsetY + (68.0f * scale),
+        noseBase * scale,
+        noseHeight * scale};
 
     state->tutorial.tutorialBtnRec = (Rectangle){
         state->tutorial.tutorialBtnPos.x,
@@ -321,7 +321,8 @@ void DrawStartScreen(const Ts_resources *res, Ts_GameState *state)
     DrawText("PRESENTADO POR:", layout->startTitlePos.x, layout->creditsTitleY, layout->fontSizeCredits, WHITE);
     DrawText("Perez Aguirre Mextli Citlali - Diseño y Arte", layout->startTitlePos.x, layout->credit1Y, layout->fontSizeCredits, WHITE);
     DrawText("Montano Valencia Mike Armando - Desarrollo de Software", layout->startTitlePos.x, layout->credit2Y, layout->fontSizeCredits, WHITE);
-    DrawText("TUTORIAL", (int)state->tutorial.tutorialBtnPos.x, (int)state->tutorial.tutorialBtnPos.y, state->tutorial.tutorialBtnFontSize, WHITE);
+    DrawTextureEx(res->texture.startBtns, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
+    DrawRectangleLinesEx(state->tutorial.tutorialBtnRec, 2.0f, RED);
 
     if (state->player.bestTime > 0.0f)
     {
@@ -518,6 +519,17 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
         }
     }
 
+    if (CheckCollisionPointRec(mousePos, state->layout.noseRec))
+    {
+        isMouseOverClickable = 1;
+
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            PlaySound(res->sound.CatMeow);
+            return;
+        }
+    }
+
     if (CheckCollisionPointRec(mousePos, state->helper.helperRec))
     {
         isMouseOverClickable = 1;
@@ -565,7 +577,7 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                     if (state->player.incorrectPoints >= state->task.maxIncorrectPoints)
                     {
                         PlayMusicStream(res->music.ending);
-                        PlaySound(res->sound.girlJumpscare);
+                        PlaySound(res->sound.jumpscare);
                         TriggerJumpscare(state);
                         return;
                     }
@@ -743,7 +755,7 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                     if (state->player.incorrectPoints >= state->task.maxIncorrectPoints)
                     {
                         PlayMusicStream(res->music.ending);
-                        PlaySound(res->sound.girlJumpscare);
+                        PlaySound(res->sound.jumpscare);
                         TriggerJumpscare(state);
                         return;
                     }
@@ -868,6 +880,11 @@ void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
     {
         isMouseOverClickable = 1;
 
+        if (state->isRightTaskTrue)
+        {
+            PlaySound(res->sound.girlSinging);
+        }
+
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             PlaySound(res->sound.arrowClick);
@@ -975,7 +992,7 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
                     if (state->player.incorrectPoints >= state->task.maxIncorrectPoints)
                     {
                         PlayMusicStream(res->music.ending);
-                        PlaySound(res->sound.girlJumpscare);
+                        PlaySound(res->sound.jumpscare);
                         TriggerJumpscare(state);
                         return;
                     }
@@ -1195,7 +1212,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
     {
         state->player.safeTime = 0.0f;
         state->player.idleTime = 0.0f;
-        PlaySound(res->sound.girlJumpscare);
+        PlaySound(res->sound.jumpscare);
         TriggerJumpscare(state);
     }
 }

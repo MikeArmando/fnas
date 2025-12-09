@@ -58,3 +58,28 @@ Tiempo: 185.00 segundos
 Respuestas correctas: 7
 Respuestas incorrectas: 5
 
+Estado: PERDISTE 
+Tiempo: 63.61 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 5
+
+Estado: PERDISTE 
+Tiempo: 128.55 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 116.01 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 0
+
+Estado: PERDISTE 
+Tiempo: 127.67 segundos
+Respuestas correctas: 0
+Respuestas incorrectas: 1
+
+Estado: PERDISTE 
+Tiempo: 134.81 segundos
+Respuestas correctas: 4
+Respuestas incorrectas: 5
+

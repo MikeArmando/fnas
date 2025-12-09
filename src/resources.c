@@ -26,6 +26,7 @@ void LoadAllTextures(Ts_Textures *textures)
     textures->leftTaskWindow = LoadTexture("backgrounds/left_task_window.png");
     textures->rightTaskWindow = LoadTexture("backgrounds/right_task_window.png");
     textures->rightTaskWindowLights = LoadTexture("backgrounds/right_task_window_light_on.png");
+    textures->startBtns = LoadTexture("backgrounds/tutorial_and_silence_btn.png");
 
     // Tutorial
     for (int i = 0; i < 6; i++)
@@ -80,7 +81,8 @@ void LoadAllSounds(Ts_SFX *sound)
     sound->hasLost = LoadSound("soundEffects/has_won.mp3");
     sound->incorrect = LoadSound("soundEffects/incorrect.mp3");
     sound->doorOpening = LoadSound("soundEffects/door_opening.mp3");
-    sound->girlJumpscare = LoadSound("soundEffects/girl_jumpscare.mp3");
+    sound->jumpscare = LoadSound("soundEffects/girl_jumpscare.mp3");
+    sound->CatMeow = LoadSound("soundEffects/cat_meow.mp3");
 
     // tasks
     sound->knockingOnWindow = LoadSound("soundEffects/knocking_window.mp3");
@@ -88,6 +90,7 @@ void LoadAllSounds(Ts_SFX *sound)
     sound->answerOnChalkboard = LoadSound("soundEffects/answer_chalkboard.mp3");
     sound->ghostWriting = LoadSound("soundEffects/writing_board.mp3");
     sound->girlLaugh = LoadSound("soundEffects/girl_laugh.mp3");
+    sound->girlSinging = LoadSound("soundEffects/girl_singing.mp3");
 
     // Volume Config
     SetSoundVolume(sound->arrowClick, 0.5f);
