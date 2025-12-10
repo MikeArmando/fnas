@@ -42,28 +42,9 @@ int main()
 			currentLogic(res, &state);
 		}
 
-		bool skipGameLogic = (currentLogic == LogicStartScreen || currentLogic == LogicLostScreen ||
-							  currentLogic == LogicWonScreen || currentLogic == LogicTutorial);
-
-		if (!skipGameLogic)
+		if (IsGameplayState(currentLogic))
 		{
-			UpdateMusicStream(res->music.monoV1);
-
-			UpdateMusicStream(res->music.background);
-
-			playerIdleTimer(res, &state);
-
-			StartTimerTask(res, &state);
-		}
-
-		// Monologue
-		float monoTimePlayed = GetMusicTimePlayed(res->music.monoV1);
-		if (state.monoLen > 0.001f)
-		{
-			if (monoTimePlayed + 0.05f >= state.monoLen)
-			{
-				StopMusicStream(res->music.monoV1);
-			}
+			UpdateGameplaySystems(res, &state);
 		}
 
 		UpdateBlink();

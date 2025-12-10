@@ -10,6 +10,48 @@ static GameLogicFunction currentLogic = 0;
 static GameDrawFunction currentDraw = 0;
 static Ts_BlinkEffect Blink = {0};
 
+// --------------------------------------- UPDATE GAME STATE ---------------------------------------
+void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state)
+{
+    UpdateMusicStream(res->music.monoV1);
+    UpdateMusicStream(res->music.background);
+
+    playerIdleTimer(res, state);
+    StartTimerTask(res, state);
+
+    if (state->monoLen > 0.001f)
+    {
+        float monoTimePlayed = GetMusicTimePlayed(res->music.monoV1);
+
+        if (monoTimePlayed + 0.05f >= state->monoLen)
+        {
+            StopMusicStream(res->music.monoV1);
+        }
+    }
+}
+
+bool IsGameplayState(GameLogicFunction logicToCheck)
+{
+    if (logicToCheck == LogicStartScreen)
+    {
+        return false;
+    }
+    if (logicToCheck == LogicTutorial)
+    {
+        return false;
+    }
+    if (logicToCheck == LogicLostScreen)
+    {
+        return false;
+    }
+    if (logicToCheck == LogicWonScreen)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 // --------------------------------------- GAME CONFIG ---------------------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
@@ -594,7 +636,10 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
                 HandleMathAnswer(res, state, currentTask, i, &state->task.isLeftTaskTrue);
+                ChangeGameState(LogicClassroom, DrawClassroom);
                 return;
             }
         }
@@ -737,7 +782,10 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
                 HandleMathAnswer(res, state, currentTask, i, &state->task.isCenterTaskTrue);
+                ChangeGameState(LogicClassroom, DrawClassroom);
                 return;
             }
         }
@@ -939,7 +987,10 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
 
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             {
-                HandleMathAnswer(res, state, currentTask, i, &state->task.isLeftTaskTrue);
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
+                HandleMathAnswer(res, state, currentTask, i, &state->task.isRightTaskTrue);
+                ChangeGameState(LogicRightTask, DrawRightTask);
                 return;
             }
         }
@@ -1098,7 +1149,6 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
 
         PlaySound(*currentTask->successSound);
         TriggerBlink(0.2f, BLACK, 0.0f);
-        ChangeGameState(LogicClassroom, DrawClassroom);
     }
     else
     {

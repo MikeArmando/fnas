@@ -122,12 +122,24 @@ void resourcesUnload()
 
 void UnloadAllTextures(Ts_Textures *textures)
 {
+    for (int i = 0; i < 6; i++)
+    {
+        UnloadTexture(textures->tutorialPages[i]);
+    }
+
+    UnloadTexture(textures->menuBtns[0]);
+    UnloadTexture(textures->menuBtns[1]);
+
     UnloadTexture(textures->classroom);
     UnloadTexture(textures->centerTaskWindow);
     UnloadTexture(textures->leftTaskWindow);
     UnloadTexture(textures->rightTaskWindow);
     UnloadTexture(textures->rightTaskWindowLights);
     UnloadTexture(textures->helperGeneralWindow);
+
+    UnloadTexture(textures->helperSumWindow);
+    UnloadTexture(textures->helperSubWindow);
+    UnloadTexture(textures->helperMultWindow);
 
     UnloadTexture(textures->leftTaskTrue);
     UnloadTexture(textures->centerTaskTrue);
@@ -163,15 +175,20 @@ void UnloadAllMusic(Ts_Music *music)
 
 void UnloadAllSounds(Ts_SFX *sound)
 {
+    UnloadSound(sound->arrowClick);
     UnloadSound(sound->girlSuspense);
     UnloadSound(sound->knockingOnWindow);
     UnloadSound(sound->eatingCookie);
+    UnloadSound(sound->doorOpening);
     UnloadSound(sound->girlLaugh);
     UnloadSound(sound->doorClosed);
     UnloadSound(sound->ghostWriting);
     UnloadSound(sound->answerOnChalkboard);
     UnloadSound(sound->suspenseSound);
+    UnloadSound(sound->jumpscare);
+    UnloadSound(sound->CatMeow);
     UnloadSound(sound->hasWon);
+    UnloadSound(sound->hasLost);
     UnloadSound(sound->incorrect);
 }
 

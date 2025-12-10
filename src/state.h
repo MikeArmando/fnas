@@ -286,3 +286,7 @@ void DrawBlink(const Ts_GameState *state);
 // -------------------------- Tutorial --------------------------
 void LogicTutorial(const Ts_resources *res, Ts_GameState *state);
 void DrawTutorial(const Ts_resources *res, Ts_GameState *state);
+
+// -------------------------- Update Game State --------------------------
+void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state);
+bool IsGameplayState(GameLogicFunction currentLogic);
