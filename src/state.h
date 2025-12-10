@@ -73,6 +73,7 @@ typedef struct _MathTaskData
     int correctIndex;
     bool isActive;
     const Sound *successSound;
+    const char *jumpscareMessage;
 } Ts_MathTaskData;
 
 typedef struct _Jumpscare
@@ -133,6 +134,9 @@ typedef struct _startAndLost
     int fontSizeInstruction;
     int fontSizeResults;
     int fontSizeCredits;
+
+    // Lost message
+    const char *currentGameOverMessage;
 } Ts_startAndLost;
 
 typedef struct _Menu

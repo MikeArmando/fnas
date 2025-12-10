@@ -26,6 +26,11 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     state->centerMathTask.successSound = &res->sound.answerOnChalkboard;
     state->rightMathTask.successSound = &res->sound.girlLaugh;
 
+    state->leftMathTask.jumpscareMessage = "No le diste galletas...";
+    state->centerMathTask.jumpscareMessage = "El fantasma se canso de esperar...";
+    state->rightMathTask.jumpscareMessage = "Su risa fue lo ultimo que escuchaste...";
+    state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
+
     state->player.bestTime = LoadBestTime();
 
     // ------------------ TUTORIAL SETUP ------------------
@@ -308,6 +313,7 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
         state->task.isLeftTaskTrue = 0;
         state->task.isCenterTaskTrue = 0;
         state->task.isRightTaskTrue = 0;
+        state->layout.tutorial.silenceBtnCurrentIndex = 1;
 
         TriggerBlink(0.6f, BLACK, 0.0f);
         ChangeGameState(LogicClassroom, DrawClassroom);
@@ -1053,11 +1059,16 @@ void DrawLostScreen(const Ts_resources *res, Ts_GameState *state)
 {
     Ts_Layout *layout = &state->layout;
 
+    const char *deathReason = layout->startAndLost.currentGameOverMessage;
+
+    char causeOfDeathText[100];
+    sprintf(causeOfDeathText, "Causa de Muerte: %s", deathReason);
+
     char resultsText[50];
     sprintf(resultsText, "Tiempo Sobrevivido: %.2f seg", state->player.playerTotalTime);
 
     DrawText("JUEGO TERMINADO", layout->startAndLost.startTitlePos.x, layout->startAndLost.startTitlePos.y, layout->startAndLost.fontSizeTitle, WHITE);
-    DrawText("Causa de muerte: Entraron las entidades al salón", layout->startAndLost.startTitlePos.x, layout->startAndLost.instructionY, layout->startAndLost.fontSizeInstruction, WHITE);
+    DrawText(causeOfDeathText, layout->startAndLost.startTitlePos.x, layout->startAndLost.instructionY, layout->startAndLost.fontSizeInstruction, WHITE);
     DrawText(resultsText, layout->startAndLost.startTitlePos.x, layout->startAndLost.gameResults, layout->startAndLost.fontSizeResults, YELLOW);
 }
 
@@ -1070,6 +1081,7 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
     {
         currentTask->isActive = false;
         *taskFlag = 0;
+
         state->player.correctPoints++;
 
         if (state->player.correctPoints >= state->task.maxCorrectPoints)
@@ -1094,6 +1106,7 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
 
         if (state->player.incorrectPoints >= state->task.maxIncorrectPoints)
         {
+            state->layout.startAndLost.currentGameOverMessage = currentTask->jumpscareMessage;
             PlayMusicStream(res->music.ending);
             PlaySound(res->sound.jumpscare);
             TriggerJumpscare(state);
@@ -1117,17 +1130,16 @@ void SaveGameResults(Ts_GameState *state, int playerWon)
     fprintf(textFile, "Respuestas incorrectas: %d\n\n", state->player.incorrectPoints);
     fclose(textFile);
 
-    FILE *binFile;
-    binFile = fopen("resultado.dat", "ab");
-
     if (playerWon == 1)
     {
+        FILE *binFile = fopen("resultado.dat", "ab");
+
         fwrite(&playerWon, sizeof(int), 1, binFile);
         fwrite(&state->player.playerTotalTime, sizeof(float), 1, binFile);
         fwrite(&state->player.correctPoints, sizeof(float), 1, binFile);
         fwrite(&state->player.incorrectPoints, sizeof(float), 1, binFile);
+        fclose(binFile);
     }
-    fclose(binFile);
 }
 
 float LoadBestTime()
