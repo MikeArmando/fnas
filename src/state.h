@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "resources.h"
+#include "config.h"
 
 #define MAX_ANSWERS 4
 
@@ -35,8 +36,10 @@ typedef struct _Task
     int chanceLeft;
     int chanceCenter;
     int chanceRight;
+
     float interval;
     float currentTime;
+
     int maxCorrectPoints;
     int maxIncorrectPoints;
 
@@ -213,11 +216,9 @@ void ChangeGameState(GameLogicFunction newLogic, GameDrawFunction newDraw);
 GameLogicFunction GetCurrentLogic();
 GameDrawFunction GetCurrentDraw();
 
-// -------------------------- Initial Game Config --------------------------
-void GameStateConfig(const Ts_resources *res, Ts_GameState *state);
-void CalculateGlobalScale(const Ts_resources *res, Ts_GameState *state);
-void CalculateObjectPositions(Ts_GameState *state);
-void CalculateHitboxes(const Ts_resources *res, Ts_GameState *state);
+// -------------------------- Update Game State --------------------------
+void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state);
+bool IsGameplayState(GameLogicFunction currentLogic);
 
 // -------------------------- Start Section --------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
@@ -289,7 +290,3 @@ void DrawBlink(const Ts_GameState *state);
 // -------------------------- Tutorial --------------------------
 void LogicTutorial(const Ts_resources *res, Ts_GameState *state);
 void DrawTutorial(const Ts_resources *res, Ts_GameState *state);
-
-// -------------------------- Update Game State --------------------------
-void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state);
-bool IsGameplayState(GameLogicFunction currentLogic);
