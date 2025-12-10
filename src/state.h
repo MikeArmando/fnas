@@ -74,6 +74,9 @@ typedef struct _MathTaskData
     bool isActive;
     const Sound *successSound;
     const char *jumpscareMessage;
+
+    GameLogicFunction returnLogic;
+    GameDrawFunction returnDraw;
 } Ts_MathTaskData;
 
 typedef struct _Jumpscare

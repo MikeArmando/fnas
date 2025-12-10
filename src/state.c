@@ -73,6 +73,15 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     state->rightMathTask.jumpscareMessage = "Su risa fue lo ultimo que escuchaste...";
     state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
 
+    state->leftMathTask.returnLogic = LogicClassroom;
+    state->leftMathTask.returnDraw = DrawClassroom;
+
+    state->centerMathTask.returnLogic = LogicClassroom;
+    state->centerMathTask.returnDraw = DrawClassroom;
+
+    state->rightMathTask.returnLogic = LogicRightTask;
+    state->rightMathTask.returnDraw = DrawRightTask;
+
     state->player.bestTime = LoadBestTime();
 
     // ------------------ TUTORIAL SETUP ------------------
@@ -639,7 +648,6 @@ void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
                 SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
                 HandleMathAnswer(res, state, currentTask, i, &state->task.isLeftTaskTrue);
-                ChangeGameState(LogicClassroom, DrawClassroom);
                 return;
             }
         }
@@ -785,7 +793,6 @@ void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
                 SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
                 HandleMathAnswer(res, state, currentTask, i, &state->task.isCenterTaskTrue);
-                ChangeGameState(LogicClassroom, DrawClassroom);
                 return;
             }
         }
@@ -990,7 +997,6 @@ void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
                 SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
                 HandleMathAnswer(res, state, currentTask, i, &state->task.isRightTaskTrue);
-                ChangeGameState(LogicRightTask, DrawRightTask);
                 return;
             }
         }
@@ -1149,6 +1155,7 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
 
         PlaySound(*currentTask->successSound);
         TriggerBlink(0.2f, BLACK, 0.0f);
+        ChangeGameState(currentTask->returnLogic, currentTask->returnDraw);
     }
     else
     {
