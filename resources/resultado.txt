@@ -13,3 +13,8 @@ Tiempo: 171.24 segundos
 Respuestas correctas: 2
 Respuestas incorrectas: 5
 
+Estado: PERDISTE 
+Tiempo: 123.61 segundos
+Respuestas correctas: 1
+Respuestas incorrectas: 0
+

@@ -1084,7 +1084,7 @@ void centerMathTaskGenerator(Ts_MathTaskData *task)
 void rightMathTaskGenerator(Ts_MathTaskData *task)
 {
     task->num1 = GetRandomValue(0, 100);
-    task->num2 = GetRandomValue(1, 100);
+    task->num2 = GetRandomValue(1, task->num1);
     task->op = '-';
     task->correctAnswer = task->num1 - task->num2;
     task->isActive = true;
@@ -1120,8 +1120,7 @@ void assignWrongChoices(Ts_MathTaskData *task)
                     break;
                 }
             }
-
-        } while (isDuplicate || wrongAnswer == task->correctAnswer);
+        } while (isDuplicate || wrongAnswer == task->correctAnswer || wrongAnswer < 0);
 
         task->choicesList[i] = wrongAnswer;
     }
