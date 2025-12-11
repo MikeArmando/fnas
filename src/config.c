@@ -1,6 +1,7 @@
 #include "config.h"
 #include "state.h"
 #include "resources.h"
+#include "gameplay.h"
 #include <math.h>
 
 #define BASE_WIDTH 1250.0f

@@ -224,6 +224,10 @@ bool IsGameplayState(GameLogicFunction currentLogic);
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
 void DrawStartScreen(const Ts_resources *res, Ts_GameState *state);
 
+// -------------------------- Tutorial --------------------------
+void LogicTutorial(const Ts_resources *res, Ts_GameState *state);
+void DrawTutorial(const Ts_resources *res, Ts_GameState *state);
+
 // -------------------------- Classroom Section --------------------------
 void LogicClassroom(const Ts_resources *res, Ts_GameState *state);
 void DrawClassroom(const Ts_resources *res, Ts_GameState *state);
@@ -258,35 +262,3 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state);
 
 void LogicLostScreen(const Ts_resources *res, Ts_GameState *state);
 void DrawLostScreen(const Ts_resources *res, Ts_GameState *state);
-
-// -------------------------- Task Handle --------------------------
-void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex, int *taskFlag);
-
-// -------------------------- Game Results --------------------------
-void SaveGameResults(Ts_GameState *state, int playerWon);
-float LoadBestTime();
-
-// -------------------------- JumpScare --------------------------
-void TriggerJumpscare(Ts_GameState *state);
-void LogicJumpscare(const Ts_resources *res, Ts_GameState *state);
-void DrawJumpscare(const Ts_resources *res, Ts_GameState *state);
-
-// -------------------------- Timer --------------------------
-void StartTimerTask(const Ts_resources *res, Ts_GameState *state);
-void AssignTask(const Ts_resources *res, Ts_GameState *state);
-void playerIdleTimer(const Ts_resources *res, Ts_GameState *state);
-
-// -------------------------- Math Generator --------------------------
-void leftMathTaskGenerator(Ts_MathTaskData *task);
-void centerMathTaskGenerator(Ts_MathTaskData *task);
-void rightMathTaskGenerator(Ts_MathTaskData *task);
-void assignWrongChoices(Ts_MathTaskData *task);
-
-// -------------------------- Blink Effect --------------------------
-void TriggerBlink(float duration, Color color, float frequency);
-void UpdateBlink(void);
-void DrawBlink(const Ts_GameState *state);
-
-// -------------------------- Tutorial --------------------------
-void LogicTutorial(const Ts_resources *res, Ts_GameState *state);
-void DrawTutorial(const Ts_resources *res, Ts_GameState *state);

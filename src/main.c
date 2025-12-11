@@ -2,6 +2,7 @@
 #include "resource_dir.h"
 #include "resources.h"
 #include "state.h"
+#include "gameplay.h"
 
 int main()
 {
@@ -47,7 +48,7 @@ int main()
 			UpdateGameplaySystems(res, &state);
 		}
 
-		UpdateBlink();
+		UpdateBlink(&state);
 
 		// ----------------- Drawing Section -----------------
 		BeginDrawing();
