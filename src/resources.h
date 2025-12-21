@@ -9,7 +9,6 @@ typedef struct _Music
     Music intro;
     Music m1Track;
     Music monoV1;
-    Music monoV2;
     Music background;
     Music ending;
     Music won;
