@@ -133,6 +133,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
     {
         state->player.safeTime = 0.0f;
         state->player.idleTime = 0.0f;
+        state->layout.startAndLost.currentGameOverMessage = "Se durmió el compa";
         PlaySound(res->sound.jumpscare);
         TriggerJumpscare(state);
     }
