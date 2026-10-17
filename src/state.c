@@ -706,6 +706,7 @@ void LogicWonScreen(const Ts_resources *res, Ts_GameState *state)
     if (IsKeyPressed(KEY_ENTER))
     {
         StopMusicStream(res->music.won);
+        PlayMusicStream(res->music.intro);
         ChangeGameState(LogicStartScreen, DrawStartScreen);
         return;
     }
