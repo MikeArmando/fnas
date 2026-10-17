@@ -31,21 +31,21 @@ typedef struct _Helper
     int isHelpWindow;
 } Ts_Helper;
 
+typedef enum _TaskId
+{
+    TASK_LEFT,
+    TASK_CENTER,
+    TASK_RIGHT,
+    TASK_COUNT
+} Te_TaskId;
+
 typedef struct _Task
 {
-    int chanceLeft;
-    int chanceCenter;
-    int chanceRight;
-
     float interval;
     float currentTime;
 
     int maxCorrectPoints;
     int maxIncorrectPoints;
-
-    int isLeftTaskTrue;
-    int isCenterTaskTrue;
-    int isRightTaskTrue;
 } Ts_Task;
 
 typedef struct _Math
@@ -66,8 +66,17 @@ typedef struct _Math
     Vector2 chalkboardMathQuestionPos;
 } Ts_Math;
 
+typedef struct _MathTaskData Ts_MathTaskData;
+typedef void (*MathOperandsFn)(Ts_MathTaskData *task);
+
 typedef struct _MathTaskData
 {
+    // Configuration (set once in GameStateConfig)
+    MathOperandsFn pickOperands;
+    int spawnWeight;
+    const Sound *spawnSound;
+
+    // Runtime
     int num1;
     int num2;
     char op;
@@ -194,9 +203,7 @@ typedef struct _GameState
 
     Ts_Layout layout;
 
-    Ts_MathTaskData leftMathTask;
-    Ts_MathTaskData centerMathTask;
-    Ts_MathTaskData rightMathTask;
+    Ts_MathTaskData mathTask[TASK_COUNT];
 
     Ts_Jumpscare Jumpscare;
 

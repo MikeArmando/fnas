@@ -4,14 +4,13 @@
 #include <float.h>
 
 // --------------------------------------- TASK HANDLE ---------------------------------------
-void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex, int *taskFlag)
+void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex)
 {
     state->player.idleTime = 0.0f;
 
     if (answerIndex == currentTask->correctIndex)
     {
         currentTask->isActive = false;
-        *taskFlag = 0;
 
         state->player.correctPoints++;
 
@@ -162,77 +161,62 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
 {
     int roll = GetRandomValue(0, 99);
 
-    int limitLeft = state->task.chanceLeft;
-    int limitCenter = state->task.chanceLeft + state->task.chanceCenter;
-
-    if (roll < limitLeft)
+    // Weighted pick. The last task takes the remainder, as before.
+    int id = TASK_COUNT - 1;
+    int accumulated = 0;
+    for (int i = 0; i < TASK_COUNT - 1; i++)
     {
-        if (state->task.isLeftTaskTrue)
+        accumulated += state->mathTask[i].spawnWeight;
+        if (roll < accumulated)
         {
-            return;
+            id = i;
+            break;
         }
-        Ts_MathTaskData *currentTask = &state->leftMathTask;
-        leftMathTaskGenerator(currentTask);
-        PlaySound(res->sound.knockingOnWindow);
-        state->task.isLeftTaskTrue = 1;
-        return;
     }
-    if (roll < limitCenter)
+
+    Ts_MathTaskData *task = &state->mathTask[id];
+    if (task->isActive)
     {
-        if (state->task.isCenterTaskTrue)
-        {
-            return;
-        }
-        Ts_MathTaskData *currentTask = &state->centerMathTask;
-        centerMathTaskGenerator(currentTask);
-        PlaySound(res->sound.ghostWriting);
-        state->task.isCenterTaskTrue = 1;
         return;
     }
 
-    if (state->task.isRightTaskTrue)
+    GenerateMathTask(task);
+    if (task->spawnSound)
     {
-        return;
+        PlaySound(*task->spawnSound);
     }
-    Ts_MathTaskData *currentTask = &state->rightMathTask;
-    rightMathTaskGenerator(currentTask);
-    state->task.isRightTaskTrue = 1;
 }
 
-void leftMathTaskGenerator(Ts_MathTaskData *task)
+// --------------------------------------- MATH GENERATOR (STRATEGY) ---------------------------------------
+// Each operation only decides its operands and the result.
+// The rest (answer slot, wrong choices, activation) is shared in GenerateMathTask.
+void PickSumOperands(Ts_MathTaskData *task)
 {
     task->num1 = GetRandomValue(0, 100);
     task->num2 = GetRandomValue(1, 100);
     task->op = '+';
     task->correctAnswer = task->num1 + task->num2;
-    task->isActive = true;
-
-    task->correctIndex = GetRandomValue(0, 3);
-    task->choicesList[task->correctIndex] = task->correctAnswer;
-
-    assignWrongChoices(task);
 }
 
-void centerMathTaskGenerator(Ts_MathTaskData *task)
-{
-    task->num1 = GetRandomValue(1, 10);
-    task->num2 = GetRandomValue(0, 10);
-    task->op = 'x';
-    task->correctAnswer = task->num1 * task->num2;
-    task->isActive = true;
-
-    task->correctIndex = GetRandomValue(0, 3);
-    task->choicesList[task->correctIndex] = task->correctAnswer;
-
-    assignWrongChoices(task);
-}
-
-void rightMathTaskGenerator(Ts_MathTaskData *task)
+void PickSubOperands(Ts_MathTaskData *task)
 {
     task->num1 = GetRandomValue(0, 100);
     task->num2 = GetRandomValue(1, task->num1);
     task->op = '-';
     task->correctAnswer = task->num1 - task->num2;
+}
+
+void PickMultOperands(Ts_MathTaskData *task)
+{
+    task->num1 = GetRandomValue(1, 10);
+    task->num2 = GetRandomValue(0, 10);
+    task->op = 'x';
+    task->correctAnswer = task->num1 * task->num2;
+}
+
+void GenerateMathTask(Ts_MathTaskData *task)
+{
+    task->pickOperands(task);
     task->isActive = true;
 
     task->correctIndex = GetRandomValue(0, 3);

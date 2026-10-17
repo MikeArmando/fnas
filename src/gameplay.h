@@ -8,7 +8,7 @@ typedef struct _GameState Ts_GameState;
 typedef struct _MathTaskData Ts_MathTaskData;
 
 // -------------------------- Task Handle --------------------------
-void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex, int *taskFlag);
+void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex);
 
 // -------------------------- Game Results --------------------------
 void SaveGameResults(Ts_GameState *state, int playerWon);
@@ -25,9 +25,10 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state);
 void playerIdleTimer(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Math Generator --------------------------
-void leftMathTaskGenerator(Ts_MathTaskData *task);
-void centerMathTaskGenerator(Ts_MathTaskData *task);
-void rightMathTaskGenerator(Ts_MathTaskData *task);
+void PickSumOperands(Ts_MathTaskData *task);
+void PickSubOperands(Ts_MathTaskData *task);
+void PickMultOperands(Ts_MathTaskData *task);
+void GenerateMathTask(Ts_MathTaskData *task);
 void assignWrongChoices(Ts_MathTaskData *task);
 
 // -------------------------- Blink Effect --------------------------

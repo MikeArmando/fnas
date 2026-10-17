@@ -88,9 +88,10 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
         state->player.correctPoints = 0;
         state->player.idleTime = 0.0f;
         state->player.safeTime = 0.0f;
-        state->task.isLeftTaskTrue = 0;
-        state->task.isCenterTaskTrue = 0;
-        state->task.isRightTaskTrue = 0;
+        for (int i = 0; i < TASK_COUNT; i++)
+        {
+            state->mathTask[i].isActive = false;
+        }
         state->layout.tutorial.silenceBtnCurrentIndex = 1;
 
         TriggerBlink(state, 0.6f, BLACK, 0.0f);
@@ -268,11 +269,11 @@ void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
     DrawTextureEx(res->texture.leftArrow, state->layout.arrow.leftArrowPos, 0.0f, state->layout.arrow.scaleArrow, WHITE);
     DrawTextureEx(res->texture.rightArrow, state->layout.arrow.rightArrowPos, 0.0f, state->layout.arrow.scaleArrow, WHITE);
 
-    if (state->task.isLeftTaskTrue)
+    if (state->mathTask[TASK_LEFT].isActive)
     {
         DrawTextureEx(res->texture.leftIndicator, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
     }
-    if (state->task.isCenterTaskTrue)
+    if (state->mathTask[TASK_CENTER].isActive)
     {
         DrawTextureEx(res->texture.centerIndicator, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
     }
@@ -283,6 +284,113 @@ void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
     DrawTextureEx(res->texture.helper, state->helper.helperPos, 0.0f, state->helper.scaleHelper, WHITE);
 }
 
+// --------------------------------------- SHARED TASK HELPERS ---------------------------------------
+static bool IsClicked(Vector2 mousePos, Rectangle rec, bool *isOver)
+{
+    if (!CheckCollisionPointRec(mousePos, rec))
+    {
+        return false;
+    }
+
+    *isOver = true;
+    return IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
+}
+
+static void ApplyCursor(bool isOver)
+{
+    SetMouseCursor(isOver ? MOUSE_CURSOR_POINTING_HAND : MOUSE_CURSOR_DEFAULT);
+}
+
+static void UpdateHelperHover(Ts_GameState *state, bool *isOver)
+{
+    if (CheckCollisionPointRec(GetMousePosition(), state->helper.helperRec))
+    {
+        *isOver = true;
+        state->helper.isHelpWindow = 1;
+    }
+    else
+    {
+        state->helper.isHelpWindow = 0;
+    }
+}
+
+// Returns true when an answer was selected (the caller must stop processing the frame).
+static bool HandleAnswerClicks(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *task,
+                               const Rectangle recs[MAX_ANSWERS], bool *isOver)
+{
+    Vector2 mousePos = GetMousePosition();
+
+    for (int i = 0; i < MAX_ANSWERS; i++)
+    {
+        if (IsClicked(mousePos, recs[i], isOver))
+        {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            HandleMathAnswer(res, state, task, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+static void DrawMathAnswers(const Ts_MathTaskData *task, const Rectangle recs[MAX_ANSWERS],
+                            int fontSize, Color color, bool boxed)
+{
+    for (int i = 0; i < MAX_ANSWERS; i++)
+    {
+        char answersOnScreen[10];
+        sprintf(answersOnScreen, "%d", task->choicesList[i]);
+
+        if (boxed)
+        {
+            DrawRectangleLinesEx(recs[i], 3, color);
+        }
+
+        int textWidth = MeasureText(answersOnScreen, fontSize);
+
+        int answerPosX = (int)(recs[i].x + (recs[i].width / 2) - (textWidth / 2));
+        int answerPosY = (int)(recs[i].y + (recs[i].height / 2) - (fontSize / 2));
+
+        DrawText(answersOnScreen, answerPosX, answerPosY, fontSize, color);
+    }
+}
+
+// Vertical-operation layout on the book (used by the left and right tasks).
+static void DrawBookTask(const Ts_resources *res, Ts_GameState *state, const Ts_MathTaskData *task,
+                         Texture2D background, Vector2 returnArrowPos, Texture2D helperWindow)
+{
+    Ts_Layout *layout = &state->layout;
+
+    DrawTextureEx(background, layout->positionAbsolute, 0.0f, layout->scaleFit, WHITE);
+    DrawTextureEx(res->texture.returnArrow, returnArrowPos, 0.0f, layout->arrow.scaleReturnArrow, WHITE);
+    DrawTextureEx(res->texture.helper, state->helper.helperPos, 0.0f, state->helper.scaleHelper, WHITE);
+
+    char mathNum1[16];
+    sprintf(mathNum1, "%d", task->num1);
+
+    char mathNum2[16];
+    sprintf(mathNum2, "%c %d", task->op, task->num2);
+
+    int widthNum1 = MeasureText(mathNum1, layout->math.bookFontSizeQuestion);
+    int widthLine2 = MeasureText(mathNum2, layout->math.bookFontSizeQuestion);
+
+    DrawText(mathNum1,
+             (int)(layout->math.MathOpLine1Pos.x - widthNum1),
+             (int)layout->math.MathOpLine1Pos.y,
+             layout->math.bookFontSizeQuestion, BLACK);
+
+    DrawText(mathNum2,
+             (int)(layout->math.MathOpLine2Pos.x - widthLine2),
+             (int)layout->math.MathOpLine2Pos.y,
+             layout->math.bookFontSizeQuestion, BLACK);
+
+    DrawMathAnswers(task, layout->math.bookMathAnswersRec, layout->math.bookFontSizeAnswer, BLACK, false);
+
+    if (state->helper.isHelpWindow)
+    {
+        DrawTextureEx(helperWindow, state->helper.tutorialWindowPos, 0.0f, state->helper.scaleHelperWindow, WHITE);
+    }
+}
+
 // --------------------------------------- LEFT SECTION ---------------------------------------
 void LogicLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
@@ -290,7 +398,7 @@ void LogicLeftTask(const Ts_resources *res, Ts_GameState *state)
 
     int isMouseOverClickable = 0;
 
-    if (state->task.isLeftTaskTrue)
+    if (state->mathTask[TASK_LEFT].isActive)
     {
         PlaySound(res->sound.suspenseSound);
         ChangeGameState(LogicStartLeftTask, DrawStartLeftTask);
@@ -329,117 +437,36 @@ void DrawLeftTask(const Ts_resources *res, Ts_GameState *state)
 void LogicStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
+    Ts_MathTaskData *currentTask = &state->mathTask[TASK_LEFT];
+    bool isOver = false;
 
-    Ts_MathTaskData *currentTask = &state->leftMathTask;
-
-    int isMouseOverClickable = 0;
-
-    if (CheckCollisionPointRec(mousePos, state->layout.arrow.returnArrowRec))
+    if (IsClicked(mousePos, state->layout.arrow.returnArrowRec, &isOver))
     {
-        isMouseOverClickable = 1;
-
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            TriggerBlink(state, 0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicClassroom, DrawClassroom);
-            return;
-        }
+        TriggerBlink(state, 0.2f, BLACK, 0.0f);
+        ChangeGameState(LogicClassroom, DrawClassroom);
+        return;
     }
 
-    if (CheckCollisionPointRec(mousePos, state->layout.noseRec))
+    if (IsClicked(mousePos, state->layout.noseRec, &isOver))
     {
-        isMouseOverClickable = 1;
-
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            PlaySound(res->sound.CatMeow);
-            return;
-        }
+        PlaySound(res->sound.CatMeow);
+        return;
     }
 
-    if (CheckCollisionPointRec(mousePos, state->helper.helperRec))
+    UpdateHelperHover(state, &isOver);
+
+    if (HandleAnswerClicks(res, state, currentTask, state->layout.math.bookMathAnswersRec, &isOver))
     {
-        isMouseOverClickable = 1;
-        state->helper.isHelpWindow = 1;
-    }
-    else
-    {
-        state->helper.isHelpWindow = 0;
+        return;
     }
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (CheckCollisionPointRec(mousePos, state->layout.math.bookMathAnswersRec[i]))
-        {
-            isMouseOverClickable = 1;
-
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-            {
-                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-                HandleMathAnswer(res, state, currentTask, i, &state->task.isLeftTaskTrue);
-                return;
-            }
-        }
-    }
-
-    if (isMouseOverClickable)
-    {
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    }
-    else
-    {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
+    ApplyCursor(isOver);
 }
 
 void DrawStartLeftTask(const Ts_resources *res, Ts_GameState *state)
 {
-    Ts_MathTaskData *currentTask = &state->leftMathTask;
-    Ts_Layout *layout = &state->layout;
-
-    DrawTextureEx(res->texture.leftTaskTrue, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
-    DrawTextureEx(res->texture.returnArrow, layout->arrow.returnArrowPos, 0.0f, layout->arrow.scaleReturnArrow, WHITE);
-    DrawTextureEx(res->texture.helper, state->helper.helperPos, 0.0f, state->helper.scaleHelper, WHITE);
-
-    // ------------------- DRAW QUESTION -------------------
-    char mathNum1[16];
-    sprintf(mathNum1, "%d", currentTask->num1);
-
-    char mathNum2[16];
-    sprintf(mathNum2, "%c %d", currentTask->op, currentTask->num2);
-
-    int widthNum1 = MeasureText(mathNum1, layout->math.bookFontSizeQuestion);
-    int widthLine2 = MeasureText(mathNum2, layout->math.bookFontSizeQuestion);
-
-    DrawText(mathNum1,
-             (int)(layout->math.MathOpLine1Pos.x - widthNum1),
-             (int)layout->math.MathOpLine1Pos.y,
-             layout->math.bookFontSizeQuestion, BLACK);
-
-    DrawText(mathNum2,
-             (int)(layout->math.MathOpLine2Pos.x - widthLine2),
-             (int)layout->math.MathOpLine2Pos.y,
-             layout->math.bookFontSizeQuestion, BLACK);
-
-    // ------------------- DRAW ANSWERS -------------------
-    for (int i = 0; i < 4; i++)
-    {
-        char answersOnScreen[10];
-        sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
-
-        int textWidth = MeasureText(answersOnScreen, layout->math.bookFontSizeAnswer);
-
-        int answerPosX = (int)(layout->math.bookMathAnswersRec[i].x + (layout->math.bookMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(layout->math.bookMathAnswersRec[i].y + (layout->math.bookMathAnswersRec[i].height / 2) - (layout->math.bookFontSizeAnswer / 2));
-
-        DrawText(answersOnScreen, answerPosX, answerPosY, layout->math.bookFontSizeAnswer, BLACK);
-    }
-
-    if (state->helper.isHelpWindow)
-    {
-        DrawTextureEx(res->texture.helperSumWindow, state->helper.tutorialWindowPos, 0.0f, state->helper.scaleHelperWindow, WHITE);
-    }
+    DrawBookTask(res, state, &state->mathTask[TASK_LEFT], res->texture.leftTaskTrue,
+                 state->layout.arrow.returnArrowPos, res->texture.helperSumWindow);
 }
 
 // --------------------------------------- CENTER SECTION ---------------------------------------
@@ -449,7 +476,7 @@ void LogicCenterTask(const Ts_resources *res, Ts_GameState *state)
 
     int isMouseOverClickable = 0;
 
-    if (state->task.isCenterTaskTrue)
+    if (state->mathTask[TASK_CENTER].isActive)
     {
         ChangeGameState(LogicStartCenterTask, DrawStartCenterTask);
         return;
@@ -487,60 +514,29 @@ void DrawCenterTask(const Ts_resources *res, Ts_GameState *state)
 void LogicStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
-    Ts_MathTaskData *currentTask = &state->centerMathTask;
+    Ts_MathTaskData *currentTask = &state->mathTask[TASK_CENTER];
+    bool isOver = false;
 
-    int isMouseOverClickable = 0;
-
-    if (CheckCollisionPointRec(mousePos, state->layout.arrow.returnArrowRec))
+    if (IsClicked(mousePos, state->layout.arrow.returnArrowRec, &isOver))
     {
-        isMouseOverClickable = 1;
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            TriggerBlink(state, 0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicClassroom, DrawClassroom);
-            return;
-        }
+        TriggerBlink(state, 0.2f, BLACK, 0.0f);
+        ChangeGameState(LogicClassroom, DrawClassroom);
+        return;
     }
 
-    if (CheckCollisionPointRec(mousePos, state->helper.helperRec))
+    UpdateHelperHover(state, &isOver);
+
+    if (HandleAnswerClicks(res, state, currentTask, state->layout.math.chalkboardMathAnswersRec, &isOver))
     {
-        isMouseOverClickable = 1;
-        state->helper.isHelpWindow = 1;
-    }
-    else
-    {
-        state->helper.isHelpWindow = 0;
+        return;
     }
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (CheckCollisionPointRec(mousePos, state->layout.math.chalkboardMathAnswersRec[i]))
-        {
-            isMouseOverClickable = 1;
-
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-            {
-                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-                HandleMathAnswer(res, state, currentTask, i, &state->task.isCenterTaskTrue);
-                return;
-            }
-        }
-    }
-
-    if (isMouseOverClickable)
-    {
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    }
-    else
-    {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
+    ApplyCursor(isOver);
 }
 
 void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
 {
-    Ts_MathTaskData *currentTask = &state->centerMathTask;
+    Ts_MathTaskData *currentTask = &state->mathTask[TASK_CENTER];
     Ts_Layout *layout = &state->layout;
 
     DrawTextureEx(res->texture.centerTaskWindow, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
@@ -551,20 +547,8 @@ void DrawStartCenterTask(const Ts_resources *res, Ts_GameState *state)
     sprintf(questionStr, "%d %c %d %s", currentTask->num1, currentTask->op, currentTask->num2, "= ?");
     DrawText(questionStr, layout->math.chalkboardMathQuestionPos.x, layout->math.chalkboardMathQuestionPos.y, layout->math.chalkboardFontSizeQuestion, LIGHTGRAY);
 
-    for (int i = 0; i < 4; i++)
-    {
-        char answersOnScreen[10];
-        sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
+    DrawMathAnswers(currentTask, layout->math.chalkboardMathAnswersRec, layout->math.chalkboardFontSizeAnswer, LIGHTGRAY, true);
 
-        DrawRectangleLinesEx(layout->math.chalkboardMathAnswersRec[i], 3, LIGHTGRAY);
-
-        int textWidth = MeasureText(answersOnScreen, layout->math.chalkboardFontSizeAnswer);
-
-        int answerPosX = (int)(layout->math.chalkboardMathAnswersRec[i].x + (layout->math.chalkboardMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(layout->math.chalkboardMathAnswersRec[i].y + (layout->math.chalkboardMathAnswersRec[i].height / 2) - (layout->math.chalkboardFontSizeAnswer / 2));
-
-        DrawText(answersOnScreen, answerPosX, answerPosY, layout->math.chalkboardFontSizeAnswer, LIGHTGRAY);
-    }
     if (state->helper.isHelpWindow)
     {
         DrawTextureEx(res->texture.helperMultWindow, state->helper.tutorialWindowPos, 0.0f, state->helper.scaleHelperWindow, WHITE);
@@ -642,7 +626,7 @@ void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
     {
         isMouseOverClickable = 1;
 
-        if (state->task.isRightTaskTrue)
+        if (state->mathTask[TASK_RIGHT].isActive)
         {
             PlaySound(res->sound.girlSuspense);
         }
@@ -655,7 +639,7 @@ void LogicRightTaskLight(const Ts_resources *res, Ts_GameState *state)
         }
     }
 
-    if (state->task.isRightTaskTrue)
+    if (state->mathTask[TASK_RIGHT].isActive)
     {
         ChangeGameState(LogicStartRightTask, DrawStartRightTask);
         return;
@@ -680,117 +664,38 @@ void DrawRightTaskLight(const Ts_resources *res, Ts_GameState *state)
 void LogicStartRightTask(const Ts_resources *res, Ts_GameState *state)
 {
     Vector2 mousePos = GetMousePosition();
-    Ts_MathTaskData *currentTask = &state->rightMathTask;
+    Ts_MathTaskData *currentTask = &state->mathTask[TASK_RIGHT];
+    bool isOver = false;
 
-    int isMouseOverClickable = 0;
-
-    if (CheckCollisionPointRec(mousePos, state->layout.arrow.RightReturnArrowRec))
+    if (IsClicked(mousePos, state->layout.arrow.RightReturnArrowRec, &isOver))
     {
-        isMouseOverClickable = 1;
-
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            PlaySound(res->sound.doorOpening);
-            TriggerBlink(state, 0.2f, BLACK, 0.0f);
-            ChangeGameState(LogicClassroom, DrawClassroom);
-            return;
-        }
+        PlaySound(res->sound.doorOpening);
+        TriggerBlink(state, 0.2f, BLACK, 0.0f);
+        ChangeGameState(LogicClassroom, DrawClassroom);
+        return;
     }
 
-    if (CheckCollisionPointRec(mousePos, state->layout.flashlightRec))
+    if (IsClicked(mousePos, state->layout.flashlightRec, &isOver))
     {
-        isMouseOverClickable = 1;
-
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            PlaySound(res->sound.arrowClick);
-            ChangeGameState(LogicRightTask, DrawRightTask);
-            return;
-        }
+        PlaySound(res->sound.arrowClick);
+        ChangeGameState(LogicRightTask, DrawRightTask);
+        return;
     }
 
-    if (CheckCollisionPointRec(mousePos, state->helper.helperRec))
+    UpdateHelperHover(state, &isOver);
+
+    if (HandleAnswerClicks(res, state, currentTask, state->layout.math.bookMathAnswersRec, &isOver))
     {
-        isMouseOverClickable = 1;
-        state->helper.isHelpWindow = 1;
-    }
-    else
-    {
-        state->helper.isHelpWindow = 0;
+        return;
     }
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (CheckCollisionPointRec(mousePos, state->layout.math.bookMathAnswersRec[i]))
-        {
-            isMouseOverClickable = 1;
-
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-            {
-                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-                HandleMathAnswer(res, state, currentTask, i, &state->task.isRightTaskTrue);
-                return;
-            }
-        }
-    }
-
-    if (isMouseOverClickable)
-    {
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    }
-    else
-    {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
+    ApplyCursor(isOver);
 }
 
 void DrawStartRightTask(const Ts_resources *res, Ts_GameState *state)
 {
-    Ts_MathTaskData *currentTask = &state->rightMathTask;
-    Ts_Layout *layout = &state->layout;
-
-    DrawTextureEx(res->texture.rightTaskTrue, layout->positionAbsolute, 0.0f, layout->scaleFit, WHITE);
-    DrawTextureEx(res->texture.returnArrow, layout->arrow.RightReturnArrowPos, 0.0f, layout->arrow.scaleReturnArrow, WHITE);
-    DrawTextureEx(res->texture.helper, state->helper.helperPos, 0.0f, state->helper.scaleHelper, WHITE);
-
-    // ------------------- DRAW QUESTION -------------------
-    char mathNum1[16];
-    sprintf(mathNum1, "%d", currentTask->num1);
-
-    char mathNum2[16];
-    sprintf(mathNum2, "%c %d", currentTask->op, currentTask->num2);
-
-    int widthNum1 = MeasureText(mathNum1, layout->math.bookFontSizeQuestion);
-    int widthLine2 = MeasureText(mathNum2, layout->math.bookFontSizeQuestion);
-
-    DrawText(mathNum1,
-             (int)(layout->math.MathOpLine1Pos.x - widthNum1),
-             (int)layout->math.MathOpLine1Pos.y,
-             layout->math.bookFontSizeQuestion, BLACK);
-
-    DrawText(mathNum2,
-             (int)(layout->math.MathOpLine2Pos.x - widthLine2),
-             (int)layout->math.MathOpLine2Pos.y,
-             layout->math.bookFontSizeQuestion, BLACK);
-
-    // ------------------- DRAW ANSWERS -------------------
-    for (int i = 0; i < 4; i++)
-    {
-        char answersOnScreen[10];
-        sprintf(answersOnScreen, "%d", currentTask->choicesList[i]);
-
-        int textWidth = MeasureText(answersOnScreen, layout->math.bookFontSizeAnswer);
-
-        int answerPosX = (int)(layout->math.bookMathAnswersRec[i].x + (layout->math.bookMathAnswersRec[i].width / 2) - (textWidth / 2));
-        int answerPosY = (int)(layout->math.bookMathAnswersRec[i].y + (layout->math.bookMathAnswersRec[i].height / 2) - (layout->math.bookFontSizeAnswer / 2));
-
-        DrawText(answersOnScreen, answerPosX, answerPosY, layout->math.bookFontSizeAnswer, BLACK);
-    }
-    if (state->helper.isHelpWindow)
-    {
-        DrawTextureEx(res->texture.helperSubWindow, state->helper.tutorialWindowPos, 0.0f, state->helper.scaleHelperWindow, WHITE);
-    }
+    DrawBookTask(res, state, &state->mathTask[TASK_RIGHT], res->texture.rightTaskTrue,
+                 state->layout.arrow.RightReturnArrowPos, res->texture.helperSubWindow);
 }
 
 // --------------------------------------- WON SECTION ---------------------------------------

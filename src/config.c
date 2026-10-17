@@ -11,33 +11,42 @@
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
     // ------------------ TASK INITIAL SETUP ------------------
-    state->task.chanceLeft = 30;
-    state->task.chanceCenter = 50;
-    state->task.chanceRight = 20;
-
     state->task.interval = 8.0f;
     state->task.currentTime = 0.0f;
 
     state->task.maxCorrectPoints = 15;
     state->task.maxIncorrectPoints = 5;
 
-    state->leftMathTask.successSound = &res->sound.eatingCookie;
-    state->centerMathTask.successSound = &res->sound.answerOnChalkboard;
-    state->rightMathTask.successSound = &res->sound.girlLaugh;
+    // One entry per task: what varies between tasks lives here, the logic is shared.
+    // spawnWeight: left 30%, center 50%, right takes the remainder (20%).
+    state->mathTask[TASK_LEFT] = (Ts_MathTaskData){
+        .pickOperands = PickSumOperands,
+        .spawnWeight = 30,
+        .spawnSound = &res->sound.knockingOnWindow,
+        .successSound = &res->sound.eatingCookie,
+        .jumpscareMessage = "No le diste galletas...",
+        .returnLogic = LogicClassroom,
+        .returnDraw = DrawClassroom};
 
-    state->leftMathTask.jumpscareMessage = "No le diste galletas...";
-    state->centerMathTask.jumpscareMessage = "El fantasma se canso de esperar...";
-    state->rightMathTask.jumpscareMessage = "Su risa fue lo ultimo que escuchaste...";
+    state->mathTask[TASK_CENTER] = (Ts_MathTaskData){
+        .pickOperands = PickMultOperands,
+        .spawnWeight = 50,
+        .spawnSound = &res->sound.ghostWriting,
+        .successSound = &res->sound.answerOnChalkboard,
+        .jumpscareMessage = "El fantasma se canso de esperar...",
+        .returnLogic = LogicClassroom,
+        .returnDraw = DrawClassroom};
+
+    state->mathTask[TASK_RIGHT] = (Ts_MathTaskData){
+        .pickOperands = PickSubOperands,
+        .spawnWeight = 20,
+        // no spawn sound: the girl is only revealed with the flashlight
+        .successSound = &res->sound.girlLaugh,
+        .jumpscareMessage = "Su risa fue lo ultimo que escuchaste...",
+        .returnLogic = LogicRightTask,
+        .returnDraw = DrawRightTask};
+
     state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
-
-    state->leftMathTask.returnLogic = LogicClassroom;
-    state->leftMathTask.returnDraw = DrawClassroom;
-
-    state->centerMathTask.returnLogic = LogicClassroom;
-    state->centerMathTask.returnDraw = DrawClassroom;
-
-    state->rightMathTask.returnLogic = LogicRightTask;
-    state->rightMathTask.returnDraw = DrawRightTask;
 
     state->player.bestTime = LoadBestTime();
 
