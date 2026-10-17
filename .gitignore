@@ -5,6 +5,13 @@ build/
 Makefile
 *.make
 
+# Game runtime output
+resultado.txt
+resultado.dat
+
+# Executables copied outside bin/
+*.exe
+
 # User-specific files
 *.rsuser
 *.suo
