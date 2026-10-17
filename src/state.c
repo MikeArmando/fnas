@@ -47,6 +47,10 @@ bool IsGameplayState(GameLogicFunction logicToCheck)
     {
         return false;
     }
+    if (logicToCheck == LogicJumpscare)
+    {
+        return false;
+    }
 
     return true;
 }
