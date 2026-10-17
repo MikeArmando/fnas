@@ -16,7 +16,7 @@ int main()
 	resourcesLoad();
 	const Ts_resources *res = resourcesGet();
 
-	Ts_GameState state;
+	Ts_GameState state = {0};
 	GameStateConfig(res, &state);
 
 	// ----------------- Inicialize Music -----------------
