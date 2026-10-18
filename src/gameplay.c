@@ -51,8 +51,13 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
 // --------------------------------------- GAME RESULTS ---------------------------------------
 void SaveGameResults(Ts_GameState *state, int playerWon)
 {
-    FILE *textFile;
-    textFile = fopen("resultado.txt", "a");
+    FILE *textFile = fopen("resultado.txt", "a");
+
+    if (textFile == NULL)
+    {
+        TraceLog(LOG_WARNING, "RESULTS: could not open resultado.txt for writing");
+        return;
+    }
 
     fprintf(textFile, "Estado: %s \n", playerWon ? "GANASTE" : "PERDISTE");
     fprintf(textFile, "Tiempo: %.2f segundos\n", state->player.playerTotalTime);
@@ -63,6 +68,12 @@ void SaveGameResults(Ts_GameState *state, int playerWon)
     if (playerWon == 1)
     {
         FILE *binFile = fopen("resultado.dat", "ab");
+
+        if (binFile == NULL)
+        {
+            TraceLog(LOG_WARNING, "RESULTS: could not open resultado.dat for writing");
+            return;
+        }
 
         fwrite(&playerWon, sizeof(int), 1, binFile);
         fwrite(&state->player.playerTotalTime, sizeof(float), 1, binFile);
