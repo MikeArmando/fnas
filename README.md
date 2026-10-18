@@ -48,7 +48,7 @@ Se usa un sistema de puntuación para determinar si el usuario ganó o perdió:
 - 15 respuestas correctas durante la partida resultan en victoria.
 - 5 respuestas erróneas durante la partida resultan en derrota.
 - Todos los ejercicios tienen un tiempo ilimitado para resolver.
-- Si el jugador no responde a ningún ejercicio durante 2 minutos perderá la partida por inactividad.
+- Si el jugador no responde a ningún ejercicio durante 1 minuto perderá la partida por inactividad.
 
 ### Mecánicas básicas (movimiento, interacción, etc)
 
