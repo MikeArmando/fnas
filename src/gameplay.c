@@ -77,8 +77,8 @@ void SaveGameResults(Ts_GameState *state, int playerWon)
 
         fwrite(&playerWon, sizeof(int), 1, binFile);
         fwrite(&state->player.playerTotalTime, sizeof(float), 1, binFile);
-        fwrite(&state->player.correctPoints, sizeof(float), 1, binFile);
-        fwrite(&state->player.incorrectPoints, sizeof(float), 1, binFile);
+        fwrite(&state->player.correctPoints, sizeof(int), 1, binFile);
+        fwrite(&state->player.incorrectPoints, sizeof(int), 1, binFile);
         fclose(binFile);
     }
 }
@@ -104,8 +104,8 @@ float LoadBestTime()
     while (fread(&tempWon, sizeof(int), 1, binFile) == 1)
     {
         fread(&tempTime, sizeof(float), 1, binFile);
-        fread(&tempIncorrect, sizeof(int), 1, binFile);
         fread(&tempCorrect, sizeof(int), 1, binFile);
+        fread(&tempIncorrect, sizeof(int), 1, binFile);
 
         if (tempTime < minTime)
         {
