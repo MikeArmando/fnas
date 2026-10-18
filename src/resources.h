@@ -64,7 +64,6 @@ typedef struct _Textures
 
     // Tasks true
     Texture2D leftTaskTrue;
-    Texture2D centerTaskTrue;
     Texture2D rightTaskTrue;
 
     // Interactive Objects

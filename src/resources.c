@@ -41,7 +41,6 @@ void LoadAllTextures(Ts_Textures *textures)
 
     // Background task true
     textures->leftTaskTrue = LoadTexture("backgrounds/left_task_true.png");
-    textures->centerTaskTrue = LoadTexture("backgrounds/left_task_true.png");
     textures->rightTaskTrue = LoadTexture("backgrounds/right_task_window_true.png");
 
     // Objects
@@ -142,7 +141,6 @@ void UnloadAllTextures(Ts_Textures *textures)
     UnloadTexture(textures->helperMultWindow);
 
     UnloadTexture(textures->leftTaskTrue);
-    UnloadTexture(textures->centerTaskTrue);
     UnloadTexture(textures->rightTaskTrue);
 
     UnloadTexture(textures->centerIndicator);
