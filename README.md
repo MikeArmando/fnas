@@ -14,15 +14,15 @@ Resolver operaciones matemáticas básicas de sumas, restas y multiplicaciones, 
 
 ## Imagenes del juego
 
-![Salon de clase](resources/backgrounds/classroom_default.png)
+![Salon de clase](docs/img/classroom.png)
 
-![Monstruo en ventada](resources/backgrounds/left_task_true.png)
+![Monstruo en ventada](docs/img/monster.png)
 
-![pizarron](resources/backgrounds/center_task.png)
+![pizarron](docs/img/board.png)
 
-![Pasillo](resources/backgrounds/right_task_window_light_on.png)
+![Pasillo](docs/img/hallway-empty.png)
 
-![Niña en el pasillo](resources/backgrounds/right_task_window_true.png)
+![Niña en el pasillo](docs/img/hallway-girl.png)
 
 ## Edades objetivo:
 
