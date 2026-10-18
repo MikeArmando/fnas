@@ -11,6 +11,7 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
     if (answerIndex == currentTask->correctIndex)
     {
         currentTask->isActive = false;
+        currentTask->cooldownLeft = currentTask->cooldown;
 
         state->player.correctPoints++;
 
@@ -187,7 +188,7 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
     }
 
     Ts_MathTaskData *task = &state->mathTask[id];
-    if (task->isActive)
+    if (task->isActive || task->cooldownLeft > 0.0f)
     {
         return;
     }

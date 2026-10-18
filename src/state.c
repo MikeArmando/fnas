@@ -16,6 +16,22 @@ void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state)
     UpdateMusicStream(res->music.background);
 
     playerIdleTimer(res, state);
+
+    float deltatime = GetFrameTime();
+    for (int i = 0; i < TASK_COUNT; i++)
+    {
+        Ts_MathTaskData *task = &state->mathTask[i];
+
+        if (task->cooldownLeft > 0.0f)
+        {
+            task->cooldownLeft -= deltatime;
+            if (task->cooldownLeft < 0.0f)
+            {
+                task->cooldownLeft = 0.0f;
+            }
+        }
+    }
+
     StartTimerTask(res, state);
 
     if (state->monoLen > 0.001f)
@@ -95,6 +111,7 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
         for (int i = 0; i < TASK_COUNT; i++)
         {
             state->mathTask[i].isActive = false;
+            state->mathTask[i].cooldownLeft = 0.0f;
         }
         state->layout.tutorial.silenceBtnCurrentIndex = 1;
 

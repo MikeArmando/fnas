@@ -19,9 +19,11 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 
     // One entry per task: what varies between tasks lives here, the logic is shared.
     // spawnWeight: left 30%, center 50%, right takes the remainder (20%).
+    // cooldown: seconds a solved task is blocked from spawning again (spawn interval max is 10 s).
     state->mathTask[TASK_LEFT] = (Ts_MathTaskData){
         .pickOperands = PickSumOperands,
         .spawnWeight = 30,
+        .cooldown = 10.0f,
         .spawnSound = &res->sound.knockingOnWindow,
         .successSound = &res->sound.eatingCookie,
         .jumpscareMessage = "No le diste galletas...",
@@ -31,6 +33,7 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     state->mathTask[TASK_CENTER] = (Ts_MathTaskData){
         .pickOperands = PickMultOperands,
         .spawnWeight = 50,
+        .cooldown = 10.0f,
         .spawnSound = &res->sound.ghostWriting,
         .successSound = &res->sound.answerOnChalkboard,
         .jumpscareMessage = "El fantasma se canso de esperar...",
@@ -40,6 +43,7 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     state->mathTask[TASK_RIGHT] = (Ts_MathTaskData){
         .pickOperands = PickSubOperands,
         .spawnWeight = 20,
+        .cooldown = 10.0f,
         // no spawn sound: the girl is only revealed with the flashlight
         .successSound = &res->sound.girlLaugh,
         .jumpscareMessage = "Su risa fue lo ultimo que escuchaste...",

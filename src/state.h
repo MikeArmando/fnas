@@ -74,6 +74,7 @@ typedef struct _MathTaskData
     // Configuration (set once in GameStateConfig)
     MathOperandsFn pickOperands;
     int spawnWeight;
+    float cooldown; // seconds the task cannot reappear after being solved
     const Sound *spawnSound;
 
     // Runtime
@@ -84,6 +85,7 @@ typedef struct _MathTaskData
     int choicesList[MAX_ANSWERS];
     int correctIndex;
     bool isActive;
+    float cooldownLeft;
     const Sound *successSound;
     const char *jumpscareMessage;
 
