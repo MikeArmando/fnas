@@ -8,7 +8,7 @@ int main()
 {
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE);
 	SetTargetFPS(60);
-	InitWindow(1250, 750, "Five Nigths At School");
+	InitWindow(1250, 750, "Five Nights At School");
 	SearchAndSetResourceDir("resources");
 	InitAudioDevice();
 
