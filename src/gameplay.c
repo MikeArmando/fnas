@@ -201,7 +201,7 @@ void PickSumOperands(Ts_MathTaskData *task)
 
 void PickSubOperands(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(0, 100);
+    task->num1 = GetRandomValue(1, 100);
     task->num2 = GetRandomValue(1, task->num1);
     task->op = '-';
     task->correctAnswer = task->num1 - task->num2;
