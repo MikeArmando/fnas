@@ -54,6 +54,7 @@ static const Ts_LevelConfig levels[] = {
         .maxOperand = {150, 12, 150},
         .distractorRange = 5,
         .patience = {65.0f, 65.0f, 80.0f},
+        .handWarning = 30.0f,
     },
     {
         .name = "NOCHE 4",
@@ -68,6 +69,7 @@ static const Ts_LevelConfig levels[] = {
         .maxOperand = {200, 12, 200},
         .distractorRange = 3,
         .patience = {60.0f, 60.0f, 75.0f},
+        .handWarning = 30.0f,
     },
     {
         .name = "NOCHE 5",
@@ -82,6 +84,7 @@ static const Ts_LevelConfig levels[] = {
         .maxOperand = {300, 12, 300},
         .distractorRange = 3,
         .patience = {55.0f, 55.0f, 70.0f},
+        .handWarning = 30.0f,
     },
 };
 

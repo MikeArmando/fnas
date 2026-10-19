@@ -53,6 +53,7 @@ typedef struct _LevelConfig
     int maxOperand[TASK_COUNT]; // sum/sub: largest operand; mult: largest factor
     int distractorRange;        // wrong choices are correctAnswer +/- this; minimum 3
     float patience[TASK_COUNT]; // seconds a task can stay unanswered before the jumpscare; 0 = no limit
+    float handWarning;          // remaining patience (s) at which the window hand shows; ignored when patience is 0
 } Ts_LevelConfig;
 
 typedef struct _Task

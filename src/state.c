@@ -322,7 +322,12 @@ void DrawClassroom(const Ts_resources *res, Ts_GameState *state)
     DrawTextureEx(res->texture.leftArrow, state->layout.arrow.leftArrowPos, 0.0f, state->layout.arrow.scaleArrow, WHITE);
     DrawTextureEx(res->texture.rightArrow, state->layout.arrow.rightArrowPos, 0.0f, state->layout.arrow.scaleArrow, WHITE);
 
-    if (state->mathTask[TASK_LEFT].isActive)
+    // Window hand: without patience it shows from the arrival; with patience only when the attack is near.
+    // The arrival knock still sounds in every night, and entering the window opens the task either way.
+    const Ts_MathTaskData *windowTask = &state->mathTask[TASK_LEFT];
+    bool showWindowHand = windowTask->isActive &&
+                          (windowTask->patience <= 0.0f || windowTask->patience - windowTask->waitTime <= state->level->handWarning);
+    if (showWindowHand)
     {
         DrawTextureEx(res->texture.leftIndicator, state->layout.positionAbsolute, 0.0f, state->layout.scaleFit, WHITE);
     }
