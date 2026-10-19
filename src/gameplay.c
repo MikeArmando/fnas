@@ -3,6 +3,9 @@
 #include "gameplay.h"
 #include <float.h>
 
+// Idle counting starts this many seconds after the safe time ends (was 55 = 52 + 3).
+#define IDLE_START_DELAY 3.0f
+
 // --------------------------------------- TASK HANDLE ---------------------------------------
 void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex)
 {
@@ -11,7 +14,6 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
     if (answerIndex == currentTask->correctIndex)
     {
         currentTask->isActive = false;
-        currentTask->cooldownLeft = currentTask->cooldown;
 
         state->player.correctPoints++;
 
@@ -134,14 +136,14 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
 
     state->player.playerTotalTime += deltatime;
 
-    if (state->player.safeTime < 55.0f)
+    if (state->player.safeTime < state->level->safeTime + IDLE_START_DELAY)
     {
         state->player.safeTime += deltatime;
         return;
     }
 
     state->player.idleTime += deltatime;
-    if (state->player.idleTime >= 60.0f)
+    if (state->player.idleTime >= state->level->idleLimit)
     {
         state->player.safeTime = 0.0f;
         state->player.idleTime = 0.0f;
@@ -154,7 +156,7 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
 // --------------------------------------- ASSIGN TASK SECTION ---------------------------------------
 void StartTimerTask(const Ts_resources *res, Ts_GameState *state)
 {
-    if (state->player.safeTime < 52.0f)
+    if (state->player.safeTime < state->level->safeTime)
     {
         return;
     }
@@ -165,7 +167,7 @@ void StartTimerTask(const Ts_resources *res, Ts_GameState *state)
     if (state->task.currentTime >= state->task.interval)
     {
         state->task.currentTime -= state->task.interval;
-        state->task.interval = (float)GetRandomValue(5, 10);
+        state->task.interval = (float)GetRandomValue(state->level->spawnMin, state->level->spawnMax);
         AssignTask(res, state);
     }
 }
@@ -188,7 +190,7 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
     }
 
     Ts_MathTaskData *task = &state->mathTask[id];
-    if (task->isActive || task->cooldownLeft > 0.0f)
+    if (task->isActive)
     {
         return;
     }

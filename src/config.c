@@ -7,6 +7,20 @@
 #define BASE_WIDTH 1250.0f
 #define BASE_HEIGHT 750.0f
 
+// --------------------------------------- LEVELS ---------------------------------------
+// One row per night. Night 1 reproduces the original behavior.
+static const Ts_LevelConfig levels[] = {
+    {
+        .safeTime = 52.0f,
+        .spawnMin = 5,
+        .spawnMax = 10,
+        .spawnWeight = {30, 50}, // right takes the remainder (20)
+        .maxCorrectPoints = 15,
+        .maxIncorrectPoints = 5,
+        .idleLimit = 60.0f,
+    },
+};
+
 // --------------------------------------- GAME CONFIG ---------------------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
@@ -14,16 +28,10 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     state->task.interval = 8.0f;
     state->task.currentTime = 0.0f;
 
-    state->task.maxCorrectPoints = 15;
-    state->task.maxIncorrectPoints = 5;
-
     // One entry per task: what varies between tasks lives here, the logic is shared.
-    // spawnWeight: left 30%, center 50%, right takes the remainder (20%).
-    // cooldown: seconds a solved task is blocked from spawning again (spawn interval max is 10 s).
+    // spawnWeight comes from the level table (set below).
     state->mathTask[TASK_LEFT] = (Ts_MathTaskData){
         .pickOperands = PickSumOperands,
-        .spawnWeight = 30,
-        .cooldown = 10.0f,
         .spawnSound = &res->sound.knockingOnWindow,
         .successSound = &res->sound.eatingCookie,
         .jumpscareMessage = "No le diste galletas...",
@@ -32,8 +40,6 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 
     state->mathTask[TASK_CENTER] = (Ts_MathTaskData){
         .pickOperands = PickMultOperands,
-        .spawnWeight = 50,
-        .cooldown = 10.0f,
         .spawnSound = &res->sound.ghostWriting,
         .successSound = &res->sound.answerOnChalkboard,
         .jumpscareMessage = "El fantasma se canso de esperar...",
@@ -42,13 +48,20 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 
     state->mathTask[TASK_RIGHT] = (Ts_MathTaskData){
         .pickOperands = PickSubOperands,
-        .spawnWeight = 20,
-        .cooldown = 10.0f,
         // no spawn sound: the girl is only revealed with the flashlight
         .successSound = &res->sound.girlLaugh,
         .jumpscareMessage = "Su risa fue lo ultimo que escuchaste...",
         .returnLogic = LogicRightTask,
         .returnDraw = DrawRightTask};
+
+    // ------------------ LEVEL SETUP ------------------
+    state->level = &levels[0];
+    state->task.maxCorrectPoints = state->level->maxCorrectPoints;
+    state->task.maxIncorrectPoints = state->level->maxIncorrectPoints;
+    for (int i = 0; i < TASK_COUNT - 1; i++)
+    {
+        state->mathTask[i].spawnWeight = state->level->spawnWeight[i];
+    }
 
     state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
 

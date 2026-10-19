@@ -39,6 +39,17 @@ typedef enum _TaskId
     TASK_COUNT
 } Te_TaskId;
 
+// One row per night (see the level table in config.c).
+typedef struct _LevelConfig
+{
+    float safeTime;                  // no task spawns before this; idle counting starts IDLE_START_DELAY later
+    int spawnMin, spawnMax;          // seconds between spawns, random in [spawnMin, spawnMax]
+    int spawnWeight[TASK_COUNT - 1]; // left, center; the last task takes the remainder to 100
+    int maxCorrectPoints;
+    int maxIncorrectPoints;
+    float idleLimit; // seconds without answering before the player loses
+} Ts_LevelConfig;
+
 typedef struct _Task
 {
     float interval;
@@ -74,7 +85,6 @@ typedef struct _MathTaskData
     // Configuration (set once in GameStateConfig)
     MathOperandsFn pickOperands;
     int spawnWeight;
-    float cooldown; // seconds the task cannot reappear after being solved
     const Sound *spawnSound;
 
     // Runtime
@@ -85,7 +95,6 @@ typedef struct _MathTaskData
     int choicesList[MAX_ANSWERS];
     int correctIndex;
     bool isActive;
-    float cooldownLeft;
     const Sound *successSound;
     const char *jumpscareMessage;
 
@@ -216,6 +225,8 @@ typedef struct _GameState
     Ts_BlinkEffect blinkState;
 
     Ts_Task task;
+
+    const Ts_LevelConfig *level;
 
     float monoLen;
 } Ts_GameState;
