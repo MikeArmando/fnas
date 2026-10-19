@@ -740,6 +740,7 @@ void LogicWonScreen(const Ts_resources *res, Ts_GameState *state)
     if (IsKeyPressed(KEY_ENTER))
     {
         StopMusicStream(res->music.won);
+        StopSound(res->sound.hasWon);
 
         if (state->currentLevel < GetLevelCount() - 1)
         {
