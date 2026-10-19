@@ -6,6 +6,8 @@
 #define BASE_WIDTH 1250.0f
 #define BASE_HEIGHT 750.0f
 
+#define LEVEL_INTRO_DURATION 2.5f
+
 static GameLogicFunction currentLogic = 0;
 static GameDrawFunction currentDraw = 0;
 
@@ -18,7 +20,7 @@ void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state)
     playerIdleTimer(res, state);
     StartTimerTask(res, state);
 
-    if (state->monoLen > 0.001f)
+    if (state->level->hasNarration && state->monoLen > 0.001f)
     {
         float monoTimePlayed = GetMusicTimePlayed(res->music.monoV1);
 
@@ -51,6 +53,10 @@ bool IsGameplayState(GameLogicFunction logicToCheck)
     {
         return false;
     }
+    if (logicToCheck == LogicLevelIntro)
+    {
+        return false;
+    }
 
     return true;
 }
@@ -72,6 +78,40 @@ GameDrawFunction GetCurrentDraw()
     return currentDraw;
 }
 
+// --------------------------------------- LEVEL INTRO (NIGHT CARD) ---------------------------------------
+// Shows the night card. A pending blink is cancelled so it does not dim the card.
+static void BeginLevelIntro(Ts_GameState *state)
+{
+    state->blinkState.active = false;
+    ChangeGameState(LogicLevelIntro, DrawLevelIntro);
+}
+
+void LogicLevelIntro(const Ts_resources *res, Ts_GameState *state)
+{
+    state->levelIntroTimer += GetFrameTime();
+    if (state->levelIntroTimer < LEVEL_INTRO_DURATION)
+    {
+        return;
+    }
+
+    // Music starts with the night itself, so the narration stays in sync with the safe time.
+    PlayMusicStream(res->music.background);
+    if (state->level->hasNarration)
+    {
+        PlayMusicStream(res->music.monoV1);
+    }
+
+    TriggerBlink(state, 0.6f, BLACK, 0.0f);
+    ChangeGameState(LogicClassroom, DrawClassroom);
+}
+
+void DrawLevelIntro(const Ts_resources *res, Ts_GameState *state)
+{
+    Ts_startAndLost *screen = &state->layout.startAndLost;
+
+    DrawText(state->level->name, screen->startTitlePos.x, screen->startTitlePos.y, screen->fontSizeTitle, WHITE);
+}
+
 // --------------------------------------- START SECTION ---------------------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
 {
@@ -84,15 +124,12 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
     if (IsKeyPressed(KEY_ENTER))
     {
         StopMusicStream(res->music.intro);
-        PlayMusicStream(res->music.monoV1);
-        PlayMusicStream(res->music.background);
 
         state->player.playerTotalTime = 0;
-        StartLevel(state);
+        StartLevel(state, 0);
         state->layout.tutorial.silenceBtnCurrentIndex = 1;
 
-        TriggerBlink(state, 0.6f, BLACK, 0.0f);
-        ChangeGameState(LogicClassroom, DrawClassroom);
+        BeginLevelIntro(state);
         return;
     }
 
@@ -703,6 +740,14 @@ void LogicWonScreen(const Ts_resources *res, Ts_GameState *state)
     if (IsKeyPressed(KEY_ENTER))
     {
         StopMusicStream(res->music.won);
+
+        if (state->currentLevel < GetLevelCount() - 1)
+        {
+            StartLevel(state, state->currentLevel + 1);
+            BeginLevelIntro(state);
+            return;
+        }
+
         PlayMusicStream(res->music.intro);
         ChangeGameState(LogicStartScreen, DrawStartScreen);
         return;
@@ -719,10 +764,20 @@ void DrawWonScreen(const Ts_resources *res, Ts_GameState *state)
 {
     Ts_Layout *layout = &state->layout;
 
+    DrawText("BUEN TRABAJO!", layout->startAndLost.startTitlePos.x, layout->startAndLost.startTitlePos.y, layout->startAndLost.fontSizeTitle, WHITE);
+
+    // Intermediate night: only the night number. Last night: the final screen with the total time.
+    if (state->currentLevel < GetLevelCount() - 1)
+    {
+        char nightText[50];
+        sprintf(nightText, "Sobreviviste la noche %d", state->currentLevel + 1);
+        DrawText(nightText, layout->startAndLost.startTitlePos.x, layout->startAndLost.instructionY, layout->startAndLost.fontSizeInstruction, WHITE);
+        return;
+    }
+
     char resultsText[50];
     sprintf(resultsText, "Tiempo Sobrevivido: %.2f seg", state->player.playerTotalTime);
 
-    DrawText("BUEN TRABAJO!", layout->startAndLost.startTitlePos.x, layout->startAndLost.startTitlePos.y, layout->startAndLost.fontSizeTitle, WHITE);
     DrawText("Sobreviviste la noche", layout->startAndLost.startTitlePos.x, layout->startAndLost.instructionY, layout->startAndLost.fontSizeInstruction, WHITE);
     DrawText(resultsText, layout->startAndLost.startTitlePos.x, layout->startAndLost.gameResults, layout->startAndLost.fontSizeResults, YELLOW);
 }

@@ -7,7 +7,8 @@ typedef struct _GameState Ts_GameState;
 
 // -------------------------- Initial Game Config And Layout --------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state);
-void StartLevel(Ts_GameState *state);
+void StartLevel(Ts_GameState *state, int levelIndex);
+int GetLevelCount(void);
 void CalculateGlobalScale(const Ts_resources *res, Ts_GameState *state);
 void CalculateObjectPositions(Ts_GameState *state);
 void CalculateHitboxes(const Ts_resources *res, Ts_GameState *state);

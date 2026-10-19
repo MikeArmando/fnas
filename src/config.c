@@ -16,6 +16,8 @@
 // One row per night. Night 1 reproduces the original behavior.
 static const Ts_LevelConfig levels[] = {
     {
+        .name = "NOCHE 1",
+        .hasNarration = true,
         .safeTime = 52.0f,
         .spawnMin = 5,
         .spawnMax = 10,
@@ -26,7 +28,25 @@ static const Ts_LevelConfig levels[] = {
         .maxOperand = {100, 10, 100}, // left sum, center mult, right sub
         .distractorRange = 5,
     },
+    {
+        .name = "NOCHE 2",
+        .hasNarration = false,
+        .safeTime = 8.0f,
+        .spawnMin = 5,
+        .spawnMax = 10,
+        .spawnWeight = {30, 50},
+        .maxCorrectPoints = 12,
+        .maxIncorrectPoints = 5,
+        .idleLimit = 60.0f,
+        .maxOperand = {150, 10, 150},
+        .distractorRange = 5,
+    },
 };
+
+int GetLevelCount(void)
+{
+    return (int)(sizeof(levels) / sizeof(levels[0]));
+}
 
 // --------------------------------------- GAME CONFIG ---------------------------------------
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
@@ -59,8 +79,7 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
         .returnDraw = DrawRightTask};
 
     // ------------------ LEVEL SETUP ------------------
-    state->level = &levels[0];
-    StartLevel(state);
+    StartLevel(state, 0);
 
     state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
 
@@ -84,9 +103,13 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 }
 
 // --------------------------------------- LEVEL START ---------------------------------------
-// Applies state->level to the runtime fields and resets everything a night depends on.
-void StartLevel(Ts_GameState *state)
+// Selects the level at levelIndex, applies it to the runtime fields and resets everything a night depends on.
+void StartLevel(Ts_GameState *state, int levelIndex)
 {
+    state->currentLevel = levelIndex;
+    state->level = &levels[levelIndex];
+    state->levelIntroTimer = 0.0f;
+
     const Ts_LevelConfig *level = state->level;
 
     state->task.maxCorrectPoints = level->maxCorrectPoints;

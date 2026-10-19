@@ -23,8 +23,12 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
             PlayMusicStream(res->music.won);
             TriggerBlink(state, 7.0f, BLACK, 0.0f);
 
-            SaveGameResults(state, 1);
-            state->player.bestTime = LoadBestTime();
+            // Only finishing the last night counts as a result.
+            if (state->currentLevel == GetLevelCount() - 1)
+            {
+                SaveGameResults(state, 1);
+                state->player.bestTime = LoadBestTime();
+            }
             ChangeGameState(LogicWonScreen, DrawWonScreen);
             return;
         }

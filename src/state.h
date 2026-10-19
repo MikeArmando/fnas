@@ -42,6 +42,8 @@ typedef enum _TaskId
 // One row per night (see the level table in config.c).
 typedef struct _LevelConfig
 {
+    const char *name;                // text of the night card
+    bool hasNarration;               // only night 1 plays the intro narration
     float safeTime;                  // no task spawns before this; idle counting starts IDLE_START_DELAY later
     int spawnMin, spawnMax;          // seconds between spawns, random in [spawnMin, spawnMax]
     int spawnWeight[TASK_COUNT - 1]; // left, center; the last task takes the remainder to 100
@@ -231,6 +233,8 @@ typedef struct _GameState
     Ts_Task task;
 
     const Ts_LevelConfig *level;
+    int currentLevel;      // index of level in the level table
+    float levelIntroTimer; // seconds the night card has been shown
 
     float monoLen;
 } Ts_GameState;
@@ -243,6 +247,10 @@ GameDrawFunction GetCurrentDraw();
 // -------------------------- Update Game State --------------------------
 void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state);
 bool IsGameplayState(GameLogicFunction currentLogic);
+
+// -------------------------- Level Intro (night card) --------------------------
+void LogicLevelIntro(const Ts_resources *res, Ts_GameState *state);
+void DrawLevelIntro(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Start Section --------------------------
 void LogicStartScreen(const Ts_resources *res, Ts_GameState *state);
