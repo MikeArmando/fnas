@@ -7,6 +7,11 @@
 #define BASE_WIDTH 1250.0f
 #define BASE_HEIGHT 750.0f
 
+// With a smaller range assignWrongChoices can run out of candidates (e.g. correct answer 0) and never end.
+#define MIN_DISTRACTOR_RANGE 3
+// Seconds between the end of the safe time and the first task of a night.
+#define FIRST_SPAWN_DELAY 8.0f
+
 // --------------------------------------- LEVELS ---------------------------------------
 // One row per night. Night 1 reproduces the original behavior.
 static const Ts_LevelConfig levels[] = {
@@ -18,6 +23,8 @@ static const Ts_LevelConfig levels[] = {
         .maxCorrectPoints = 15,
         .maxIncorrectPoints = 5,
         .idleLimit = 60.0f,
+        .maxOperand = {100, 10, 100}, // left sum, center mult, right sub
+        .distractorRange = 5,
     },
 };
 
@@ -25,9 +32,6 @@ static const Ts_LevelConfig levels[] = {
 void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 {
     // ------------------ TASK INITIAL SETUP ------------------
-    state->task.interval = 8.0f;
-    state->task.currentTime = 0.0f;
-
     // One entry per task: what varies between tasks lives here, the logic is shared.
     // spawnWeight comes from the level table (set below).
     state->mathTask[TASK_LEFT] = (Ts_MathTaskData){
@@ -56,12 +60,7 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
 
     // ------------------ LEVEL SETUP ------------------
     state->level = &levels[0];
-    state->task.maxCorrectPoints = state->level->maxCorrectPoints;
-    state->task.maxIncorrectPoints = state->level->maxIncorrectPoints;
-    for (int i = 0; i < TASK_COUNT - 1; i++)
-    {
-        state->mathTask[i].spawnWeight = state->level->spawnWeight[i];
-    }
+    StartLevel(state);
 
     state->layout.startAndLost.currentGameOverMessage = "Bro?? Todo bien?";
 
@@ -82,6 +81,47 @@ void GameStateConfig(const Ts_resources *res, Ts_GameState *state)
     CalculateGlobalScale(res, state);
     CalculateObjectPositions(state);
     CalculateHitboxes(res, state);
+}
+
+// --------------------------------------- LEVEL START ---------------------------------------
+// Applies state->level to the runtime fields and resets everything a night depends on.
+void StartLevel(Ts_GameState *state)
+{
+    const Ts_LevelConfig *level = state->level;
+
+    state->task.maxCorrectPoints = level->maxCorrectPoints;
+    state->task.maxIncorrectPoints = level->maxIncorrectPoints;
+
+    int distractorRange = level->distractorRange;
+    if (distractorRange < MIN_DISTRACTOR_RANGE)
+    {
+        TraceLog(LOG_WARNING, "LEVEL: distractorRange %d is below %d, using %d", distractorRange, MIN_DISTRACTOR_RANGE, MIN_DISTRACTOR_RANGE);
+        distractorRange = MIN_DISTRACTOR_RANGE;
+    }
+
+    for (int i = 0; i < TASK_COUNT; i++)
+    {
+        Ts_MathTaskData *task = &state->mathTask[i];
+        task->maxOperand = level->maxOperand[i];
+        task->distractorRange = distractorRange;
+        task->isActive = false;
+
+        // The last task has no weight: it takes the remainder.
+        if (i < TASK_COUNT - 1)
+        {
+            task->spawnWeight = level->spawnWeight[i];
+        }
+    }
+
+    state->task.currentTime = 0.0f;
+    state->task.interval = FIRST_SPAWN_DELAY;
+
+    state->player.incorrectPoints = 0;
+    state->player.correctPoints = 0;
+    state->player.idleTime = 0.0f;
+    state->player.safeTime = 0.0f;
+
+    state->helper.isHelpWindow = 0;
 }
 
 void CalculateGlobalScale(const Ts_resources *res, Ts_GameState *state)

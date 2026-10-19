@@ -47,7 +47,9 @@ typedef struct _LevelConfig
     int spawnWeight[TASK_COUNT - 1]; // left, center; the last task takes the remainder to 100
     int maxCorrectPoints;
     int maxIncorrectPoints;
-    float idleLimit; // seconds without answering before the player loses
+    float idleLimit;            // seconds without answering before the player loses
+    int maxOperand[TASK_COUNT]; // sum/sub: largest operand; mult: largest factor
+    int distractorRange;        // wrong choices are correctAnswer +/- this; minimum 3
 } Ts_LevelConfig;
 
 typedef struct _Task
@@ -85,6 +87,8 @@ typedef struct _MathTaskData
     // Configuration (set once in GameStateConfig)
     MathOperandsFn pickOperands;
     int spawnWeight;
+    int maxOperand;
+    int distractorRange;
     const Sound *spawnSound;
 
     // Runtime

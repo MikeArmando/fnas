@@ -207,15 +207,15 @@ void AssignTask(const Ts_resources *res, Ts_GameState *state)
 // The rest (answer slot, wrong choices, activation) is shared in GenerateMathTask.
 void PickSumOperands(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(0, 100);
-    task->num2 = GetRandomValue(1, 100);
+    task->num1 = GetRandomValue(0, task->maxOperand);
+    task->num2 = GetRandomValue(1, task->maxOperand);
     task->op = '+';
     task->correctAnswer = task->num1 + task->num2;
 }
 
 void PickSubOperands(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(1, 100);
+    task->num1 = GetRandomValue(1, task->maxOperand);
     task->num2 = GetRandomValue(1, task->num1);
     task->op = '-';
     task->correctAnswer = task->num1 - task->num2;
@@ -223,8 +223,8 @@ void PickSubOperands(Ts_MathTaskData *task)
 
 void PickMultOperands(Ts_MathTaskData *task)
 {
-    task->num1 = GetRandomValue(1, 10);
-    task->num2 = GetRandomValue(0, 10);
+    task->num1 = GetRandomValue(1, task->maxOperand);
+    task->num2 = GetRandomValue(0, task->maxOperand);
     task->op = 'x';
     task->correctAnswer = task->num1 * task->num2;
 }
@@ -254,7 +254,7 @@ void assignWrongChoices(Ts_MathTaskData *task)
 
         do
         {
-            wrongAnswer = task->correctAnswer + GetRandomValue(-5, 5);
+            wrongAnswer = task->correctAnswer + GetRandomValue(-task->distractorRange, task->distractorRange);
             isDuplicate = false;
 
             for (int j = 0; j < i; j++)
