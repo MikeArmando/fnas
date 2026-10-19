@@ -67,6 +67,7 @@ void SaveGameResults(Ts_GameState *state, int playerWon)
     }
 
     fprintf(textFile, "Estado: %s \n", playerWon ? "GANASTE" : "PERDISTE");
+    fprintf(textFile, "Noche: %d\n", state->currentLevel + 1);
     fprintf(textFile, "Tiempo: %.2f segundos\n", state->player.playerTotalTime);
     fprintf(textFile, "Respuestas correctas: %d\n", state->player.correctPoints);
     fprintf(textFile, "Respuestas incorrectas: %d\n\n", state->player.incorrectPoints);
