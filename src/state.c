@@ -78,6 +78,24 @@ GameDrawFunction GetCurrentDraw()
     return currentDraw;
 }
 
+// --------------------------------------- ENTER KEY ---------------------------------------
+// IsKeyPressed compares the key state between two frames, so a short tap that falls inside a frame
+// stall (press and release before the next poll) is lost. The press queue keeps every press, so it is checked too.
+static bool IsEnterPressed(void)
+{
+    bool pressed = IsKeyPressed(KEY_ENTER);
+
+    int key;
+    while ((key = GetKeyPressed()) != 0)
+    {
+        if (key == KEY_ENTER)
+        {
+            pressed = true;
+        }
+    }
+    return pressed;
+}
+
 // --------------------------------------- LEVEL INTRO (NIGHT CARD) ---------------------------------------
 // Shows the night card. A pending blink is cancelled so it does not dim the card.
 static void BeginLevelIntro(Ts_GameState *state)
@@ -121,7 +139,7 @@ void LogicStartScreen(const Ts_resources *res, Ts_GameState *state)
 
     UpdateMusicStream(res->music.intro);
 
-    if (IsKeyPressed(KEY_ENTER))
+    if (IsEnterPressed())
     {
         StopMusicStream(res->music.intro);
 
@@ -737,7 +755,7 @@ void LogicWonScreen(const Ts_resources *res, Ts_GameState *state)
 {
     UpdateMusicStream(res->music.won);
 
-    if (IsKeyPressed(KEY_ENTER))
+    if (IsEnterPressed())
     {
         StopMusicStream(res->music.won);
         StopSound(res->sound.hasWon);
@@ -788,7 +806,7 @@ void LogicLostScreen(const Ts_resources *res, Ts_GameState *state)
 {
     UpdateMusicStream(res->music.ending);
 
-    if (IsKeyPressed(KEY_ENTER))
+    if (IsEnterPressed())
     {
         StopMusicStream(res->music.ending);
         PlayMusicStream(res->music.intro);
