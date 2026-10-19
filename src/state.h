@@ -52,6 +52,7 @@ typedef struct _LevelConfig
     float idleLimit;            // seconds without answering before the player loses
     int maxOperand[TASK_COUNT]; // sum/sub: largest operand; mult: largest factor
     int distractorRange;        // wrong choices are correctAnswer +/- this; minimum 3
+    float patience[TASK_COUNT]; // seconds a task can stay unanswered before the jumpscare; 0 = no limit
 } Ts_LevelConfig;
 
 typedef struct _Task
@@ -91,9 +92,11 @@ typedef struct _MathTaskData
     int spawnWeight;
     int maxOperand;
     int distractorRange;
+    float patience; // 0 = no limit
     const Sound *spawnSound;
 
     // Runtime
+    float waitTime; // seconds the current task has been active
     int num1;
     int num2;
     char op;

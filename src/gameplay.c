@@ -7,6 +7,15 @@
 #define IDLE_START_DELAY 3.0f
 
 // --------------------------------------- TASK HANDLE ---------------------------------------
+// Jumpscare caused by a task: too many wrong answers or an unanswered task. The task picks the message.
+static void TriggerTaskJumpscare(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *task)
+{
+    state->layout.startAndLost.currentGameOverMessage = task->jumpscareMessage;
+    PlayMusicStream(res->music.ending);
+    PlaySound(res->sound.jumpscare);
+    TriggerJumpscare(state);
+}
+
 void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskData *currentTask, int answerIndex)
 {
     state->player.idleTime = 0.0f;
@@ -43,10 +52,7 @@ void HandleMathAnswer(const Ts_resources *res, Ts_GameState *state, Ts_MathTaskD
 
         if (state->player.incorrectPoints >= state->task.maxIncorrectPoints)
         {
-            state->layout.startAndLost.currentGameOverMessage = currentTask->jumpscareMessage;
-            PlayMusicStream(res->music.ending);
-            PlaySound(res->sound.jumpscare);
-            TriggerJumpscare(state);
+            TriggerTaskJumpscare(res, state, currentTask);
             return;
         }
 
@@ -159,6 +165,32 @@ void playerIdleTimer(const Ts_resources *res, Ts_GameState *state)
 }
 
 // --------------------------------------- ASSIGN TASK SECTION ---------------------------------------
+void UpdateTaskPatience(const Ts_resources *res, Ts_GameState *state)
+{
+    // After a win or a loss main.c still runs one gameplay frame: it must not fire a second jumpscare.
+    if (!IsGameplayState(GetCurrentLogic()))
+    {
+        return;
+    }
+
+    float deltatime = GetFrameTime();
+
+    for (int i = 0; i < TASK_COUNT; i++)
+    {
+        Ts_MathTaskData *task = &state->mathTask[i];
+        if (!task->isActive || task->patience <= 0.0f)
+        {
+            continue;
+        }
+
+        task->waitTime += deltatime;
+        if (task->waitTime >= task->patience)
+        {
+            TriggerTaskJumpscare(res, state, task);
+            return;
+        }
+    }
+}
 void StartTimerTask(const Ts_resources *res, Ts_GameState *state)
 {
     if (state->player.safeTime < state->level->safeTime)
@@ -238,6 +270,7 @@ void GenerateMathTask(Ts_MathTaskData *task)
 {
     task->pickOperands(task);
     task->isActive = true;
+    task->waitTime = 0.0f;
 
     task->correctIndex = GetRandomValue(0, 3);
     task->choicesList[task->correctIndex] = task->correctAnswer;

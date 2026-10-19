@@ -41,6 +41,48 @@ static const Ts_LevelConfig levels[] = {
         .maxOperand = {150, 10, 150},
         .distractorRange = 5,
     },
+    {
+        .name = "NOCHE 3",
+        .hasNarration = false,
+        .safeTime = 8.0f,
+        .spawnMin = 5,
+        .spawnMax = 10,
+        .spawnWeight = {25, 35},
+        .maxCorrectPoints = 8,
+        .maxIncorrectPoints = 4,
+        .idleLimit = 60.0f,
+        .maxOperand = {150, 12, 150},
+        .distractorRange = 5,
+        .patience = {65.0f, 65.0f, 80.0f},
+    },
+    {
+        .name = "NOCHE 4",
+        .hasNarration = false,
+        .safeTime = 8.0f,
+        .spawnMin = 4,
+        .spawnMax = 8,
+        .spawnWeight = {25, 35},
+        .maxCorrectPoints = 8,
+        .maxIncorrectPoints = 4,
+        .idleLimit = 60.0f,
+        .maxOperand = {200, 12, 200},
+        .distractorRange = 3,
+        .patience = {60.0f, 60.0f, 75.0f},
+    },
+    {
+        .name = "NOCHE 5",
+        .hasNarration = false,
+        .safeTime = 8.0f,
+        .spawnMin = 3,
+        .spawnMax = 7,
+        .spawnWeight = {30, 40},
+        .maxCorrectPoints = 8,
+        .maxIncorrectPoints = 3,
+        .idleLimit = 60.0f,
+        .maxOperand = {300, 12, 300},
+        .distractorRange = 3,
+        .patience = {55.0f, 55.0f, 70.0f},
+    },
 };
 
 int GetLevelCount(void)
@@ -127,6 +169,8 @@ void StartLevel(Ts_GameState *state, int levelIndex)
         Ts_MathTaskData *task = &state->mathTask[i];
         task->maxOperand = level->maxOperand[i];
         task->distractorRange = distractorRange;
+        task->patience = level->patience[i];
+        task->waitTime = 0.0f;
         task->isActive = false;
 
         // The last task has no weight: it takes the remainder.

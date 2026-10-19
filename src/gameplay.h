@@ -23,6 +23,7 @@ void DrawJumpscare(const Ts_resources *res, Ts_GameState *state);
 void StartTimerTask(const Ts_resources *res, Ts_GameState *state);
 void AssignTask(const Ts_resources *res, Ts_GameState *state);
 void playerIdleTimer(const Ts_resources *res, Ts_GameState *state);
+void UpdateTaskPatience(const Ts_resources *res, Ts_GameState *state);
 
 // -------------------------- Math Generator --------------------------
 void PickSumOperands(Ts_MathTaskData *task);

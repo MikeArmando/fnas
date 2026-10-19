@@ -19,6 +19,7 @@ void UpdateGameplaySystems(const Ts_resources *res, Ts_GameState *state)
 
     playerIdleTimer(res, state);
     StartTimerTask(res, state);
+    UpdateTaskPatience(res, state);
 
     if (state->level->hasNarration && state->monoLen > 0.001f)
     {
